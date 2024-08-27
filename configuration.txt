@@ -1,0 +1,129 @@
+By default, your spring boot application is going to look for the configurations or the properties
+that you have mentioned inside the application.properties or inside the application dot Yaml file.
+But if you try to mention the properties or configurations inside your property file, you are clubbing
+everything along with the source code. So this approach may not work to a great extent,
+at runtime inside your QA deployment or production deployment, we want to override the default values like username, password, url details
+we can always override the properties with the other approaches like command line arguments, environment variables.
+application.yml lowest priority,operating system environmental variables
+Java System Properties, Jndi attributes servlet config,servlet context, servlet config , finally command line arguments
+ is going to have highest priority.
+ read by @value
+ @Environment So the server admins, they will create these operating system environmental variables during the creation
+ of the server very first time.
+ @ConfigurationProperties("prefix").  if you have many properties configured for your application,
+define all your properties inside your property file with a prefix value. , you can create any number of fields
+along with the getters and setters, but please note that the field names and their return type has to be matched with what you have configured inside your application.
+check AccountsContactInfoDto class
+
+Records: someone can read the data from the object of this DTO class, but they should not be able to change.
+whatever change in keys should move to different profile, server port won't change so don't move
+in yml  every time we want to move our code from one environment to other environment
+and activate a profile specific to that environment. We need to make sure we are regenerating our Docker image or our web application package, which is
+against the 15 factor methodology that we have discussed. there any way inside Springboot where we can
+activate a specific profile from an external location or through an external parameter?
+ the very first mostly used approach is with the help of command line arguments.
+ springboot automatically converts that command line arguments into a key and value pairs and add them to the environment object.
+
+ java -jar accounts.jar --build.version="1.1"
+ can also provide by using the JVM system properties. This JVM system properties has less precedence compared to the command line arguments,
+ more precedence compared to the normal property files like application.yml file.
+ you need to make sure you are having -D as a prefix before your property.  java -Dbuild.version="1.1" -jar accounts.jar
+
+ configurations is with the help of environment variables. All the letters should be in uppercase. And post that, replace all your dots with underscore.
+ BUILD_VERSION ,
+ in intelliJ edit configuration> program argument is cmd args, --spring.profiles.active=prod --build.version=1.3
+ add VM option can add virtual arg options
+ their is option to add env variable SPRING_PROFILE_ACTIVE=prod;BUILD_VERSION=1.3;
+
+ we need to inject these CLI arguments, JVM properties, environment variables manually at some point
+ of time, like maybe inside the CI/CD pipelines.
+
+ The centralized config server that we are going to build with the help of spring cloud config revolves
+ around two core elements. you are free to store all your configurations or property files inside any location,
+like you can store inside a GitHub repo or inside a file system or inside a database.
+You choose a location where you want to store all your configurations and properties securely.
+Now as a next step, our individual microservices, they can connect with this config server as a config
+clients and they can load the configurations during the startup by connecting to this configuration
+service.
+
+So whenever we are trying to use a classpath to store all our configuration, we need to make sure we
+are activating this native profile.
+http://localhost:8071/accounts/prod
+
+on client application : account
+add dependency config client org.springframework.cloud:spring-cloud-dependencies , and add config.import
+ "optional:configserver:http://localhost:8071/" here configserver is the name of config server application.
+ So with this optional what we are telling to the accounts microservice is, if it is not able to connect
+ with the config server for whatever reasons, it can still continue to start the microservice application.
+
+
+ GitHub approach
+is the most recommended approach because when you try to store your properties inside GitHub repo you
+will get multiple advantages like you can properly secure your GitHub repo. So that no one can access it.
+what is the property that we use to have two years back or one year back, So in order to get started with the GitHub approach, first we need to move all our properties into
+a GitHub repo.
+https://github.com/eazybytes/eazybytes-config.git , write in application .yml  active: git,  # native: , git: uri:
+, inside the GitHub repo we'll be having a label name for our branches.
+This default label element is going to helpful if you have multiple branches inside your GitHub repo.
+ timeout I'm going to give a value as five.
+So this represent that my config server should wait only for maximum five seconds and after the five
+seconds if it is not able to connect to my GitHub repo for whatever reasons, the config server should
+immediately throw an exception.
+clone-on-start: true , Please try to clone the GitHub repo into local system during the startup itself.
+If you don't mention these value as true, the cloning of the GitHub repo will happen only when the very first request come to your config server
+some issues like your config
+
+server may get started properly, but when the very first request coming towards your config server
+like in the form of accounts microservice or cards or loans microservice, then it cannot clone
+and it cannot read the configurations. And in such scenarios it is going to create some issues on the accounts microservice.
+
+force-pull as true. We are telling to override all the local changes whenever you are trying to start or restart your config server.
+
+to encrypt use encrypt.key and use post api : http://localhost:8071/encrypt and pass aishwarya@eazybank.com in body >raw, text
+mentioned {cipher} prefix before encrypted value,
+
+With this setup we have a problem whenever we are using a record class, We cannot change the property values at runtime by invoking the setter method.
+Whenever you are using record class, all your fields are going to be final.
+Once object is created with the help of constructor, then there is no way to change the values inside
+the fields.
+we need to enable the actuator API paths by default actuator is not going to expose all the management related API paths.
+asterisk value I'm telling to my spring boot actuator
+to enable and expose all management endpoint supported by the spring boot actuator.
+run account api,http://localhost:8085/actuator
+now post http://localhost:8085/actuator/refresh this is of account microservice, it will say what has been changed
+we have to invoke the refresh API for each microservice instance.
+Whenever we are trying to refresh the configurations at runtime without restart.
+we have to invoke the refresh API for each microservice instance. Whenever we are trying to refresh the configurations at runtime without restart.
+So to overcome this challenge we need to use a new project inside the spring cloud, which is spring cloud bus.
+If there are 500 instances running inside your production, you don't have to invoke the actuator refresh api for all your 500 instances.
+Instead, you can simply invoke bus refresh API for any of the instance inside this total 500 instances.
+download and run rabbit mq , https://www.rabbitmq.com/docs/download , set up configuration in  yml
+after changes run http://localhost:8085/actuator/busrefresh
+The server successfully processed the request, but it is not returning any content. That's why we are getting 204
+my spring cloud bus since it detected a change happened on the config server version,
+it will communicate the same to all the microservices instances that are registered with the rabbitmq.
+it will communicate the same to all the microservices instances that are registered with the rabbitmq.
+Since the loans and cards microservices are also registered with the rabbitmq, the change might have
+communicated to them and they might have refreshed the properties without the restart of the application and without invoking these bus refresh or refresh endpoints.
+
+But here we are looking for an automated approach which will automate the refreshing of the properties
+without invoking any API path manually. with the help of GitHub webhooks so use spring-cloud-config-monitor
+in config - server , expose a new API path with /monitor  we can create a webhook
+inside the GitHub repo saying that whenever a change happened inside my GitHub repo, like a new property is added, please invoke the monitor API path.
+As soon as this monitor API path receives a webhook request from the GitHub repo behind the scenes,
+it is going to invoke the refresh event with the help of Spring Cloud Bus and RabbitMQ.
+The purpose of the webhook is whenever there is a change happen inside your GitHub repo, your GitHub
+is going to publish an event to the URL that you have configured.
+github.com> repo> settings > webhooks>add> url:http://localhost:8071/monitor
+go to hookdeck.com , it will hook to localhost,
+hookdeck.com > add destination > run the command > add detail > url will be generated > paste that url to github
+content type is json ,
+
+Liveness is a concept using which we can send a signals from the container or the application indicating
+whether my container is running properly or it has some health issues.
+a readiness probe used to know whether the container or app that we
+are trying to probe is ready to start receiving the network traffic from its clients.
+Spring Boot has some actuator endpoints expose and these endpoints are available under the health endpoints.
+  health.readiness-state.enabled: true
+
+

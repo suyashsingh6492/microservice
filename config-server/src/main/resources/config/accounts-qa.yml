@@ -1,0 +1,11 @@
+build:
+  version: "3.0"
+
+accounts:
+  message: "Welcome to Bank accounts related QA APIs "
+  contactDetails:
+    name: "Suyash's s Config Ray - QA Lead"
+    email: "suyashs52@gmail.com"
+  onCallSupport:
+    - (666) 265-3765
+    - (666) 734-8371

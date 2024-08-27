@@ -1,0 +1,7 @@
+docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=accountsdb -d mysql
+use SQLELECTRON ide
+
+localhost , 3306 , root, root , download driver , add param jdbc:mysql://localhost:3306/accountsdb?allowPublicKeyRetrieval=true
+connect
+
+spring.sql.init.mode: always , Please always try to execute the scripts that I have mentioned inside the schema.sql.

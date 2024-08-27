@@ -1,0 +1,170 @@
+So for any external clients who want to connect with my microservices, they need to enter using a single
+entry point.  it will allow us to perform any checks related to security and auditing, logging.
+single entry points as gateway.
+right now the focus inside this section is, the internal communication
+sometimes a microservice can be depend on the other microservice.
+ inside microservices will be creating and destroying the containers based upon our own requirements.
+ That means the endpoints will keep changing dynamically whenever we try to scale up our microservice
+ how a new service instance can enter into the Microservice network.
+ upstream service. Because this is the service which is dependent on the another service.
+  downstream service. Because this loans microservice is acting as a dependent service for the accounts
+   the internal communication between microservices will use either the hostname DNS or
+  IP address. So there is no service discovery at the load balancing involved here.
+   we call loans.   microservice will be acting as a backing service with respect to the accounts microservice. Because without
+the loans microservice my accounts microservice cannot send a successful response to the clients who is trying to get the consolidated information of accounts and loans microservice.
+
+inside the microservices network, this approach may not be suitable because we are going to use
+a containers and these containers deployment will keep changing frequently.
+So this rapid change make it difficult to maintain the accurate DNS records and ensure efficient communication between the microservices.
+
+ whenever we are getting more traffic, we are going to onboard the more instances
+of loans microservice. And the same when the traffic is down, we are going to delete the few of the running instances of loans microservice.
+service discovery pattern? This pattern involves tracking and storing all the information about the running service instances in
+a service registry a new instance is being created, it should register inside the registry and at the same time, whenever it is terminated or being shut down or being deleted,
+Apart from service discovery and service registry, the next challenge that we have is, load balancing.
+If multiple instances of a same microservice are available, then behind the scenes it is also going
+to perform the load balancing strategy and using the same load balancing strategy.
+It is going to eventually distribute the workload among all the running instances of a microservice
+like loans microservice.
+
+One is client side service discovery, and the other one is server side service discovery.
+We know that the IP addresses will be dynamically changing  whenever we want to perform auto scaling or in the scenarios of failures.
+The very first component is there will be a centralized server or a multiple servers that maintains
+a global view of address,
+ whenever a particular micro service instance is trying to get started
+very first time, it is a responsibility of the microservice itself to connect to the central server and to register their address when they start and ready.
+And once the microservice is started, my central server also expects a regular heartbeats from my individual microservices confirming about their health.
+ if it is not receiving the regular heartbeats, then it assumes the health of a particular microservice instance is not good and it is going to delete its IP details and all the address details from the service registry.
+ my central server now has a global view of address, any other microservice which want to communicate with the backing microservice, it can connect with the central server and ask what are the IP address of so and so microservice.
+
+ this client side Service Discovery approach, applications are responsible for registering themselves with the service registry during the startup. And similarly they need to unregister themselves when shutting down,
+ the account microservice will queries the service registry for the associated IP
+ addresses of loans microservice. If multiple instances of the loan service are available inside the registry, the registry
+ is going to return the list of IP addresses to the accounts microservice.
+ Now the responsibility of selecting one of the IP address of the backing service or IP address of the
+ loan service is on to the client microservice, which is accounts microservice.
+ Since the responsibility is on the client side to decide to which instance of the backing service it needs to redirect the request
+ that's why we call this approach as client side service discovery.
+ make sure the service registry is started. waking up micro service register themselves to registry service.
+ And apart from the startup, they should also send the regular heartbeat signals to the service registry confirming their health status.
+ account service request registry for loan service, upon receiving multiple loan ip addresses
+ My account microservice is going to follow a load balancing strategy and based upon this load balancing
+ strategy, it is going to forward the request to one of the loans microservice instance.
+ client side service discovery is, you have an option to follow multiple strategies, round robin, weighted round robin,
+ least connections, or own custom algo,
+ So since there is a responsibility on the developers to achieve these client side service discovery,
+ talk with the service registration, they can perform some load balancing.
+ To overcome these challenges of client side service discovery.
+ We also have server side discovery solution, which we can implement whenever we are trying to deploy our microservices inside a Kubernetes environment.
+
+ if your individual microservice is trying to register the details with one
+ of the service discovery, the same details will be shared with the other service discovery nodes immediately
+ based upon the gossip protocol.
+ this client side service discovery makes sure the cache is being refreshed for every few seconds like 10s or 15 seconds or 20s.
+ whenever an exception happen.
+
+ If my accounts microservice is trying to communicate with other microservices with the help of client
+ side caching, then immediately it is going to invalidate the client cache and it will try to get the
+ latest IP address details from the service discovery layer. So all this is going to happen behind the scenes automatically.
+
+Spring Cloud Netflix's Eureka! is is a service which will act as a central server, which is responsible for service registration
+and service discovery. Now for the load balancing, we are going to use Spring Cloud Load Balancer library
+Netflix Feign client. Once we identify actual service details with the help of Eureka Agent and Load Balancer, we need some
+library to communicate with the other service, just like how we have REST template and web client inside the spring core framework.
+
+For example, instead of Eureka, we can also use other products like Etcd, Consul and Apache Zookeeper.
+
+In some old projects or in some projects where they are using the older versions of Spring Boot.
+You may see they are using Netflix Ribbon for client side load balancing.
+This is also good and stable product, but we're not going to use that because, the Netflix Ribbon library right now, it is in the maintenance mode and unfortunately there are no new enhancements or upgrades are happening.
+The reason is we have a latest library, which is Spring Cloud Load Balancer, which came as a replacement for the Netflix Ribbon client.
+
+add spring-cloud-starter-netflix-eureka-server, actuator, config-client dependency in eureka-server microservice project
+spring:
+  application:
+    name must be same as config server yml file
+eureka.instance.hostname we are telling to the Eureka server what host name it has to consider , Obviously inside our local system, the host name is going to be localhost.
+eureka.client.fetchregistry as false The reason is I don't want my Eureka server to fetch the registry
+details of other microservices. My Eureka server never going to call the microservices.
+Whereas in our individual microservices like accounts, loans and cards, this value should be true
+register with Eureka. So I'm telling to my Eureka server, Don't register with yourself and don't expose your details into the registry of the service Discovery.
+URL where my Eureka server is going to expose its
+functionality and other microservices they can try to connect to register their details or to discover other service details.
+start config server then eureka
+add   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' in accounts , loans etc
+eureka.instance.prefer IP address as true. register with the Eureka server by default, it will try to register with the host name.
+The host names will make sense whenever you are trying to use DNS mappings inside your microservices
+network. But inside our local system, we don't have any DNS mapping set up. use prefer IP address as true so that my accounts microservice will register with my Eureka
+server by using the IP address. My Eureka server is going to share the IP address details of accounts microservice so that the other
+microservices, they can connect with my accounts microservice.   endpoint.shutdown.enabled: true under management
+endpoints.shutdown.enabled: true in parent section .
+run config , eureka server , account application and go to http://localhost:8070/
+click on http://192.168.1.5:8085/actuator/info you will see the app detail
+http://localhost:8070/eureka/apps you will see the xml detail , change Accept application/json json response will be shown
+http://localhost:8070/eureka/apps/accounts
+we have enable shutdown related config
+use http://192.168.1.5:8085/actuator/shutdown post from postman ,
+after shutting down eureka server and wait for 30s , we will be able to see some exceptions inside the console of our microservices. That they
+are trying to send the heartbeat but Eureka Server is not responding.
+
+openfeign to call loan and card from account. @EnableFeignClients on main class ,
+traditional approach, we will use some rest template or web client and to those REST template and web client classes are interfaces.
+We are going to pass, what is the URL, request data and port number
+in feign client
+I have written only that declarative code, which means I only created an interface along with the abstract,
+create interface CardsFeignClient , @FeignClient("cards") here cards we registered with eureka server,
+my feign client will connect with the Eureka server at the runtime and it will try to get all the instance details with the logical name cards.
+method signature has to match with the actual REST API method , fetchCardDetails
+
+ FeignClient will connect with the Eureka Server and try to fetch all the instances that are registered with the logical name cards.
+ And once it receives 1 or 2 or any other instance details, it will try to cache those details for 30s,
+ which is the default period. And within these 30s it is not going to connect again with the Eureka Server, but instead it is going to leverage the details present inside the cache.
+ So based upon the IP details inside the cache, it is going to invoke this API along with the request which
+ is mobile number. So behind the scenes, all the implementation code will be generated by the open feign client.
+
+hit create account, create cards, create loans, then fetchcustomerdetails in account section
+
+Sometimes Eureka Server will enter or will activate a self-preservation mode.
+In a normal working microservice network, Eureka Server will expert heartbeats from the microservice instances that are registered with it.
+So for some reason, if the Eureka Server does not receiving a heartbeat from a particular microservice instance within a certain time frame, then it assumes that the instance has become unresponsive, crashed or it became unhealthy.
+So based upon this assumption, my Eureka server is going to delete the details of that particular instance
+But sometimes network issues can happen, in real life Once the network issue is resolved, the website we can access without any issues.
+The similar kind of network related glitches can happen inside the Microservice network as well.
+Eureka Server will definitely miss few heartbeats from the microservices instances leading to a false expiration or false removal of the service instances.
+And this can result into unnecessary evictions of healthy service instances from the registry, causing instability and disruption inside your microservice network.
+So how to overcome these false alarms are temporary or short network glitches that can happen inside your microservice network.
+So to mitigate this risk, Eureka Server is going to enter a self-preservation mode.
+Eureka Server realizes that majority of the microservices instances are not sending the heartbeat, then it is not going to react and remove all the service instance details from the registry.
+Maybe the network glitch might be present only between the Eureka Server and actual running instances.
+So with that assumption, it will keep running and keep providing the instance details that it has to the client microservices.
+And once the self-preservation mode is activated, it is not going to be expired or deactivated until
+unless a particular threshold of healthy instances is reached or the down services are brought back to online or the network glitch is resolved.
+eureka server default give 3 chances of 30 secs, if not received in any case then evict
+if thresold is 85% , Eureka server realizes 15% of the total instances of loans microservice are expired, then it is not going to expire the other loans microservice instance.
+eureka.instance.lease-renewal-interval-in-seconds, will have a default value 30s. With this property and its corresponding value, the Eureka Server is going to expect the heartbeat signals from the client microservices for every 30s.
+eureka.instance.lease-expiration-duration-in-seconds =90 , my Eureka server is going to wait a maximum of 90s to receive a heartbeat signal from a particular microservice instance.
+eureka.server.eviction-interval-timer-milliseconds=60*1000 ,Eureka server is going to evict the unhealthy
+service details from the service registry and this is not going to happen every second there is going to be a scheduler which will run behind the scenes and we can set the frequency for this scheduler. So by default, this scheduler is going to run every 60s.
+ whenever it is trying to run this task, it will check if the self-preservation mode is activated or not. If it is not activated, then it will perform the eviction process.
+ eureka.server.renewal-percent-threshold=.85,  its value is used to calculate the expected percentage of heartbeats per minute Eureka is expecting.
+ If my Eureka did not receive at least a minimum 85% of the heartbeats from the instances, then it is going to enter into the Self-preservation mode.
+ Maybe during the startup of the Eureka Server, we may have total ten instances of microservices running and with ten instances my Eureka server will expect at least nine instances to send the heartbeat signal.
+ But later on after one hour, we may onboard 20 more instances.
+ So how my Eureka server will know how to calculate these correct threshold heartbeats that it is going to expect.
+ eureka.server.renewal-threshold-update-interval-ms=15*60*1000 , a scheduler will run behind the scenes to calculate the expected total number of heartbeats that my
+Eureka server should expect per minute. default 15mins, So every 15 minutes this task will run behind the scenes and my Eureka server will know what are the
+total number of heartbeats that it should expect and based upon the total value, it is going to calculate the threshold value and based upon the threshold value, it is going to activate the self-preservation mode.
+When you disable the self-preservation mode use eureka.server.enable-self-preservation-mode=false
+
+
+
+
+
+
+
+
+
+
+
+
+

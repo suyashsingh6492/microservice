@@ -1,0 +1,90 @@
+Cloud Native applications are the software applications that are designed and developed specifically to leverage the cloud computing principles
+these applications are built and optimized to run inside any cloud environments by utilizing the cloud advantages like scalability, elasticity and flexibility.
+These techniques also enable developing loosely coupled systems that are resilient, manageable and observable.
+Resilient means they can withstand any failures manageable ,observable means we'll get to know everything about our applications,
+After building microservices like separating your business logic, you will obviously containerize your
+applications with the help of Docker or any other containerization software.
+The next character of cloud native applications is they provide scalability and elasticity.
+So adding more instances of services is going to be super easy and this can be achieved automatically
+with the help of container orchestration platforms like Kubernetes.
+Moving on to the next principle, these cloud native applications, they follow DevOps practices, by
+embracing all these DevOps principles. They promote a collaboration culture between the development and operations teams.
+The next character of native applications is, they are resilient and fault tolerance in nature.
+you will deploy this microservice in multiple locations.
+
+
+Back in 2012, the engineering team at  Heroku Cloud Platform, they introduced 12 factor methodology.
+kevin later update to 15 factor
+https://medium.com/@krishnarajanarunachalam/15-factor-methodology-and-building-cloud-native-applications-with-aws-services-9fb1e5acff0c
+1. one code base for one application.:  each application are a microservice should have its own dedicated code base.
+account has account-ms , we need to make sure every microservice is having its own GitHub repo or its own code base inside the versioning system.
+any code which is common for all the microservice, then such common code should be manage separately.
+As a library, we can also deploy all these common code as a separate standalone service which will serve as a backing service for the other applications.
+it is unnecessary to rebuild the code base for each environment deployment that you are going to make.
+
+2. API First : You should always think like to write as much logic as possible with the help of APIs.
+    you can write some testable integrations with other systems, and if the integration and testing is working, then only you can do the deployment.
+3. dependency management : explicitly declare all your dependencies of
+    an application inside a single manifest file and post that we should also ensure that these dependencies
+    are accessible to a dependency manager which can download all of them from a central repository.
+    ex : maven , gradle
+4. design, build, release, run : first stage is design stage. we need to determine all the required technologies and dependencies and tools
+    for a specific application.  it also includes the development and unit testing. we need to move on to the build stage.
+    Inside this build stage, we need to compile and package the code base with the required dependencies. By creating an immutable artifact, every build artifact should have its own unique identification number,
+    Inside this release stage, we need to combine the code base package with the deployment configurations
+    based upon the environment. Inside this release stage, we need to combine the code base package with the deployment configurations
+    based upon the environment. Like once the build stage is completed, you should not do any modifications inside the code, at the
+    runtime, inside your release stage or run stage.
+5.  configuration credentials and code. : credentials for dev, environment and QA environment and production environment is not going to be same
+6. Logs: you will have 100 difference of microservice. If there is any issue, are you going to look and search in all the 100 different servers or in all
+    the 100 different locations where your applications are going to write the logs. Instead, the application will simply redirect the logs to the standard output, treating them as a
+    sequentially ordered events based upon the time. The responsibility of the log storage and the rotation should be shifted to an external tool called
+    log aggregator. And behind the scenes, there will be a log aggregator tool that will keep on pulling for the logs,
+    and all these logs will be aggregated in a single location so that the developer or operations team,
+    they can search all the logs of all the microservice .
+7. disposability: pplications in the cloud are always considered as ephemeral, meaning that if a particular
+    microservice or a cloud native application becomes unresponsive, it can be terminated and replaced
+    with a new instance by platforms like Kubernetes automatically and at the same time, during high load
+    periods or during high load traffic, additional instances of the applications can be spin up to handle the increased workload.
+    This concept of shutting down and creating new instances automatically is called application disposability,
+8. Backing Services : Your microservices may have dependency on many other external resources like database Smtp servers,
+    FTP servers, caching systems, message brokers. So all these external resource dependencies, we call them as backing resources.
+     that we can modify or replace them without needing to make any changes inside your application code.
+     always treat these database as an attached resource so that you can easily switch to an different
+     service depending on the environment.
+9. environment parity: minimize the differences between various environments
+     of your application and also avoid any costly shortcuts. When we use these environment parity, we are going to address three different type of gaps.
+     The very first gap is time gap.  time it takes for a code change to be deployed can be significant, but this methodology
+     encourages automation like adopting CI/CD pipelines and perform continuous deployment to reduce the ime between the code development and production deployment.
+     people gap.: To bridge this gap, a DevOps culture should be followed. And this DevOps culture, it promotes collaboration between developers and operators
+     tools gap: For a microservice, a developer might use an H2 database locally, but in production they might be
+    using PostgreSQL.  This is not recommended because to achieve the environment parity we need to make sure we are using
+    the same type of tool and the same version of the backing service across all environment.
+10. administrative process.: Many times we will be having many management tasks required to support application such as database
+     migration, any batch jobs to clean the data or to update the data.
+     So all these maintenance tasks and management tasks, they should be treated as isolated process. Similar to application process.
+     It is always advisable to consider these administrative tasks as independent microservices where they
+     are executed only once and when they are not needed. We can discard them.
+11. port binding: all the cloud native applications should be self-contained and expose their services through port binding.
+     In contrast to this, a cloud native application does not depend on the presence of a Tomcat server
+     in the environment. It manages a server as a dependency within itself. Instead, every application should be deployed in a separate server and even that server also should
+     be self-contained but not external to the application.  our Docker image as a Docker container with the help of docker run command,
+    we use the port forwarding or port mapping.
+12. stateless process.: achieve scalability is to design our applications as stateless process
+    and adopting a shared nothing architecture.  all these multiple instances of accounts, microservice they should follow stateless
+    process and they should not share anything between themselves. to store the data they should use a backing service like an data store, for example
+    you can use a database or you can use a redis cache to store all the caching related information.
+13. concurrency.: , scalability also requires the ability to serve large number of users. applications should support concurrent processing to handle multiple users simultaneously.
+    This means if you have ten different microservice instances are running inside your microservice network,
+    Instead, they should be capable of processing lot of requests parallelly simultaneously to achieve
+    process play a very crucial role in application design.So in such scenarios we can horizontally scale our processes to distribute the workload across multiple
+     processors on different machines.
+14. telemetry: multiple services running, multiple servers will be running inside your organization.
+  So how are you going to monitor them. For the same we have a concept called observability.
+    Telemetry data such as logs, metrics, traces, health status and events.
+15. authentication and authorization:  we need to follow a zero trust approach and we need to make
+  sure every communication and every interaction within the system and within the microservice network
+    or cloud native systems is happening by following the security standards. they can have some SSL certificates, they can have some firewall protection.
+
+
+

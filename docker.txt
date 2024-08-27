@@ -1,0 +1,143 @@
+whenever we try to install Docker inside any system, we get Docker client and Docker server.  Docker client there are two different components
+Using this command line interface, we can issue commands to the Docker server directly from your terminal
+you can also issue commands to the Docker server using APIs using this Docker remote API,
+So image is an representation of your packaged application.So it has all the required dependencies and configurations packaged into a Docker image.
+generate a container from a Docker image.
+Inside this Docker hub, you can store all your Docker images and you can make them available for public use,
+So as soon as I give this instruction, my Docker server will validate if the Docker image is available inside my local system.
+If it is not there, it is going to fetch the required Docker image from the remote repository like Docker Hub.
+o simplify is we don't have to write any low level Docker file like in the first approach
+and using these approach only we are going to generate a Docker image of Loans Microservice.
+Now the last approach that we have is Google Jib.we can generate a Docker image of any Java application very easily without writing any low level dockerfile
+docker build . -t suyashs52/accounts:v1
+-t tag , image name first username/name:version
+inspect an image docker inspect image <image_id>
+docker images
+docker inspect 9154
+
+docker create container > docker run -p
+p is port ,  by default, all your Docker containers, they are going to start inside their
+own isolated network and we can't access the services inside your Docker network because since it is deployed inside its own private network.
+et them access from the external network you need to expose them explicitly with the help of this port mapping.
+
+ docker run -p 8085:8085 suyashs52/accounts:v1
+  docker run -d -p 8085:8085 suyashs52/accounts:v1
+  -d detached mode ,my Docker server to run the container behind the scenes in a detached mode and I don't want to see any logs inside my terminal
+docker ps
+docker ps -a ,all container
+docker start <contaienr id>
+docker stop <container id>
+
+port mapping or port forwarding or port publishing? containers are connected to an isolated network within the
+Docker host,
+
+
+So Buildpacks is a framework or an ecosystem or a concept develop by heroku
+using google jib
+https://github.com/GoogleContainerTools/jib
+https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin
+https://github.com/GoogleContainerTools/jib/blob/master/examples/spring-boot/README.md
+ ./gradlew jib --image=suyashs52/cards-service:v1 --platform linux/amd64
+ ./gradlew jib --image=suyashs52/loans-service:v1
+
+ docker image push docker.io/suyashs52/card-service:v1
+
+The service name that I want to give for accounts,
+to make sure that it has a maximum memory allocation. in docker compose use
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+ So to make sure that the Intercommunication is working, we need to tag all these microservices under a same network by the same.
+ we can define any number of networks.     networks:
+                                             - simple-bank
+My Docker server is going to establish a bridge using which all my micro services they can communicate with each other.
+docker compose up -d
+docker compose down
+docker compose start  , if container present
+docker images : list of Docker images present inside my local Docker server.
+docker image inspect <imageid>  detail image information
+docker image rm <image id> iis to remove that Docker image.
+docker build -t [image name]  , build an image
+docker ps , all running container
+docker container start [container id] , start a stop container
+docker container pause [container id] , pause   all process within one or more container
+docker container unpause [container id] , to resume   all process within one or more container
+docker container kill [container id]
+docker container logs [container id]
+Whenever you use this docker container stop command, your Docker server is going to give some time
+for your container to close any resources, which means your Docker server is not going to kill your running container instantly.
+docker container kill, you can kill one or more running containers instantly.
+ you want to continuously follow the logs of a container like you want to see the logs in action
+ docker container logs -f [container id]
+ docker rm [container id]
+ docker container prune ,to remove all stopped container
+ docker image push [container-registry]/username:tag/image id
+ docker image pull  [container-registry]/username:tag/image id to pull an image from container registry
+ docker image prune , to remove all unused image
+ docker container stats , to show all container statistics cpu/memory/io usage
+ docker system prune , remove stopped container , dangling image , volume and cache
+ docker rmi [image id] , rmove 1 or more image id
+ docker login -u [username]
+ docker logout
+ docker history [image name] display the itermediate layer and command that were execute while building the image
+ docker exec -it [container id] sh  , open shell inside docker running container and execute them
+ docker compose up
+ docker compose down
+
+
+ go to docker desktop > extension > logs explorer
+
+
+,
+ SPRING_PROFILE_ACTIVE: default when default is the folder name , docker-compose present in that folder only
+
+how to evaluate whether my config server is in healthy status. add healthcheck.test in docker compose
+we can get the output as up or down from health check api, grep UP will check if UP string found
+test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1" if not then exit
+maybe in the scenarios where my config server might have taken good amount of time, maybe
+30s or 20s to get start the complete config server application, start_period please try to execute these health check command only after
+the 10s. retries: if there is a failure, I'm telling please do the retries for ten times with an interval
+of 10s inside the each check it has to wait for the maximum five seconds to get the response from
+this URL.
+now add depend_on in account server ,     depends_on:. configserver: condition: service_healthy
+We want our accounts microservice to wait till the config server is started completely with a good health. so condition: service_healthy
+mention service started, it is going to wait till your service is started, but it will never care for your healthy status which you have defined here.
+ config server and all other microservices, they will depend on rabbitmq  since we are using spring cloud bus inside the dependencies.
+
+put common detail for all service in one place and use extends.service key word
+
+do docker build after gradle build to all the microservices
+after gradle build
+ accounts-service % docker build . -t suyashs52/accounts-service:v1
+cards-service %         docker build . -t suyashs52/card-service:v1
+loan-service % docker build . -t suyashs52/loan-service:v1
+config-server % docker build . -t suyashs52/configserver:v1
+eureka-server % docker build . -t suyashs52/eureka-server:v1
+push all the images
+ docker image push docker.io/suyashs52/accounts-service:v1
+ docker image push docker.io/suyashs52/card-service:v1
+ docker image push docker.io/suyashs52/loan-service:v1
+ docker image push docker.io/suyashs52/configserver:v1
+ docker image push docker.io/suyashs52/eureka-server:v1
+
+ cd docker-compose/default
+docker compose up -d
+
+all started , now docker ps
+
+here       SPRING_RABBITMQ_HOST: "rabbit" is the host of rabbitmq in config -server
+because we define service as rabbit for this.
+
+db name is accountdb , -e environment variable , username is root, -d detach mode, docker image is mysql
+run mysql in docker :
+docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=accountsdb -d mysql
+use SQLELECTRON ide
+
+
+
+
+
+
+
+
