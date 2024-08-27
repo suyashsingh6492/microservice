@@ -8,4 +8,4 @@ LABEL "org.opencontainers.image.authors"="suyashs52"
 COPY build/libs/eureka-server-0.0.1-SNAPSHOT.jar eureka-server-0.0.1.jar
 
 # execute the application
-ENTRYPOINT ["java", "-jar", "eureka-server-0.0.1"]
+ENTRYPOINT ["java", "-jar", "eureka-server-0.0.1.jar"]

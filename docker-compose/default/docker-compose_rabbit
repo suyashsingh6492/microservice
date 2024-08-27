@@ -1,31 +1,29 @@
 services:
-  #  accountsdb:
-  #    container_name: accountsdb
-  #    ports:
-  #      - 3306:3306
-  #    environment:
-  #      MYSQL_DATABASE: accountsdb
-  #    extends:
-  #      file: common-config.yml
-  #      service: microservice-db-config
+  accountsdb:
+    container_name: accountsdb
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: accountsdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
   accounts:
     image: "suyashs52/accounts-service:v1"
     container_name: accounts-ms
     ports:
       - "8085:8085"
     depends_on:
-      #      accountsdb:
-      #        condition: service_healthy
-      configserver:
+      accountsdb:
         condition: service_healthy
-      eureka-server:
+      configserver:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "accounts"
-    #      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
     extends:
       file: common-config.yml
-      service: microservice-eureka-config
+      service: microservice-configserver-config
 
   loans:
     image: "suyashs52/loan-service:v1"
@@ -34,10 +32,7 @@ services:
       - "8090:8090"
     extends:
       file: common-config.yml
-      service: microservice-eureka-config
-    depends_on:
-      eureka-server:
-        condition: service_healthy
+      service: microservice-configserver-config
     environment:
       SPRING_APPLICATION_NAME: "loans"
 
@@ -46,21 +41,20 @@ services:
     container_name: cards-ms
     ports:
       - "9000:9000"
-    depends_on:
-      eureka-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "cards"
     extends:
       file: common-config.yml
-      service: microservice-eureka-config
+      service: microservice-configserver-config
 
   configserver:
     image: "suyashs52/configserver:v1"
     container_name: configserver-ms
     ports:
       - "8071:8071"
-
+    depends_on:
+      rabbit:
+        condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
       interval: 10s
@@ -70,28 +64,24 @@ services:
     extends:
       file: common-config.yml
       service: microservice-base-config
+  #      service: microservice-db-config
 
-
-  eureka-server:
-    image: "suyashs52/eureka-server:v1"
-    container_name: eureka-server-ms
+  rabbit:
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
     ports:
-      - "8070:8070"
-
+      - "5672:5672"
+      - "15672:15672"
     healthcheck:
-      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      test: rabbitmq-diagnostics check_port_connectivity
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 10s
+      start_period: 5s
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
-    depends_on:
-      configserver:
-        condition: service_healthy
-    environment:
-      SPRING_APPLICATION_NAME: "eureka-server"
+      service: network-deploy-service
+
 
 networks:
   simple-bank:

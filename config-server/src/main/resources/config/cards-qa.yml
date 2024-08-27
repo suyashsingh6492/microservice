@@ -1,0 +1,11 @@
+build:
+  version: "3.0"
+
+cards:
+  message: "Welcome to Bank Cards related local APIs "
+  contactDetails:
+    name: "John Doe - Developer"
+    email: "{cipher}686b2291f35405ce7cb62f647dc2bf4df55f760020b7392b80738b6061e8842c5a43847d8b04e4d17a22c8762eed4b33"
+  onCallSupport:
+    - (555) 555-1234
+    - (555) 523-1345
