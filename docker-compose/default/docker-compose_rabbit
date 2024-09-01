@@ -25,16 +25,16 @@ services:
       file: common-config.yml
       service: microservice-configserver-config
 
-  loans:
+  cards:
     image: "suyashs52/loan-service:v1"
-    container_name: loans-ms
+    container_name: cards-ms
     ports:
       - "8090:8090"
     extends:
       file: common-config.yml
       service: microservice-configserver-config
     environment:
-      SPRING_APPLICATION_NAME: "loans"
+      SPRING_APPLICATION_NAME: "cards"
 
   cards:
     image: "suyashs52/card-service:v1"

@@ -51,9 +51,17 @@ management:
     web:
       exposure:
         include: '*'
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
   endpoint:
     shutdown:
       enabled: true
+    health:
+      probes:
+        enabled: true
   info:
     env:
       enabled: true
@@ -75,3 +83,9 @@ info:
   app:
     name: "account"
     description: "Bank Account Application"
+
+logging:
+  level:
+    com:
+      example:
+        accounts: DEBUG

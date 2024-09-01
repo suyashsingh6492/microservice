@@ -1,0 +1,69 @@
+if not using gateway In real projects you may have more than 100 microservices as well, and all those individual microservices,
+if they start receiving the external communication directly from the clients, we will be facing a lot of challenges and disadvantages.
+security, auditing, logging and routing, you need to repeat the business logic related to these and cross-cutting concerns inside all of your microservices.
+if putting common module leads to more regression testing, more impact analysis .
+please note that using Gateway or Edge server, we can also make our downstream services fault tolerant and resilient in nature.
+Maybe you have plans like standard, premium and advance. So based upon these plans, you want to enforce different, different quota limitations on a respective client.
+ API Gateway or Edge Server is going to act as a mediator. It can do some include and exclude list where it can perform some checks related to blacklisting or
+whitelisting of the IP address.  it can also perform some authentication and authorization. can also enforce some rate limit, which means we
+can limit the quantity of requests or the amount of requests coming from a particular client.
+ API Gateway is capable of performing dynamic routing, service discovery, modify request and response, and if needed, it can also perform protocol conversion.
+ Maybe all the external traffic you are trying to accept with the Https protocol, but you want to forward
+  the request using Http protocol to all your microservices.
+spring cloud gateway,
+the Spring Cloud Gateway is built based upon the spring reactive framework.  seamlessly process any amount of workload that you can receive inside your
+microservices network. Since this is going to sit in between your client applications and the actual microservices, your client
+applications, they can never directly interact with your actual individual microservices .
+
+Spring Cloud Gateway is the most preferred API gateway compared to Zuul, because Spring Cloud
+Gateway built on the spring reactor, which and it also has integration with Circuit Breaker, Service
+discovery and it is non-blocking in nature.
+
+First we always receive the request from our external clients,
+edge server inside our microservices, it is going to take help from the gateway handler mapping.
+to identify what is the path that has been invoked by my client application a and to which microservice it has to redirect the request.
+After my spring Cloud Gateway identifies to which microservice the request has to be forwarded first It will check if there are any predicates or pre filters configured by the developer.
+hese two components will be executed before forwarding the request to the actual microservice.
+A predicate is a logic which will return a boolean value. these predicates will help my Spring cloud gateway to decide whether the conditions defined by
+my developer is met or not. and simply deny the request with a proper error to the client application.
+Let's assume all the predicates defined by the developer are passed  look for are there any pre filters configured by the developer
+we can execute any business logic like you can do some request validations, you can do some auditing, logging, security
+All such non-functional requirements are cross-cutting requirements Finally, your request will be forwarded to the actual microservice like cards, cards
+Once my microservice processes the request, it is going to send the response and the response will be intercepted by the post filters.
+The pre filters will act on the request. Very similarly, the post filters, they will act on the response.
+search spring cloud filter  If you click on this route predicate factories, you will be able to see how to configure a route based
+http://localhost:8072/actuator/gateway/routes
+lowerCaseServiceId: true , will convert ACCOUNTS (default eureka naming) to accounts
+So using this Gateway filter factory, we can add a header inside the response and here they have given the configuration with the help of .yml.
+
+filter: RequestTraceFilter This filter is responsible to generate a trace ID or correlation ID whenever a new request came to my
+gateway server from the external client applications , RequestTraceFilter:  to add the trace ID or the correlation ID into the response
+so that my client also is aware about that trace ID
+So based upon the order that you have mentioned, using the same order, all the filters will be executed.
+@Order(1) first execute this filter , want your filter to be executed for all kinds of traffic we are implementing this interface, which is GlobalFilter.
+Using this server web exchange inside the reactive project we can access the request and response associated with an exchange.
+So here, since we don't have collection of objects and we are not returning anything, we should use mono void
+logging: level: com: gateway: DEBUG whatever logger statements that you see inside the packages  , print it  if they are of type debug.
+logger.debug
+do api changes in accounts/fetchCustomerDetails . accept @RequestHeader
+after restarting all microservices , start gateway service
+Now let me go to the accounts application related log statements. You can see I have one correlationId saying that easybank correlation ID found with so and so value.
+So this confirms that the request reached to the accounts microservice.
+
+define the dependencies for our gateway server saying that only once my accounts, cards and loans microservice
+started and their health is good, then only try to start the gateway server.
+want to enable the health related and readiness and liveliness related URLs inside my accounts, loans and cards
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,25 +7,25 @@ sometimes a microservice can be depend on the other microservice.
  That means the endpoints will keep changing dynamically whenever we try to scale up our microservice
  how a new service instance can enter into the Microservice network.
  upstream service. Because this is the service which is dependent on the another service.
-  downstream service. Because this loans microservice is acting as a dependent service for the accounts
+  downstream service. Because this cards microservice is acting as a dependent service for the accounts
    the internal communication between microservices will use either the hostname DNS or
   IP address. So there is no service discovery at the load balancing involved here.
-   we call loans.   microservice will be acting as a backing service with respect to the accounts microservice. Because without
-the loans microservice my accounts microservice cannot send a successful response to the clients who is trying to get the consolidated information of accounts and loans microservice.
+   we call cards.   microservice will be acting as a backing service with respect to the accounts microservice. Because without
+the cards microservice my accounts microservice cannot send a successful response to the clients who is trying to get the consolidated information of accounts and cards microservice.
 
 inside the microservices network, this approach may not be suitable because we are going to use
 a containers and these containers deployment will keep changing frequently.
 So this rapid change make it difficult to maintain the accurate DNS records and ensure efficient communication between the microservices.
 
  whenever we are getting more traffic, we are going to onboard the more instances
-of loans microservice. And the same when the traffic is down, we are going to delete the few of the running instances of loans microservice.
+of cards microservice. And the same when the traffic is down, we are going to delete the few of the running instances of cards microservice.
 service discovery pattern? This pattern involves tracking and storing all the information about the running service instances in
 a service registry a new instance is being created, it should register inside the registry and at the same time, whenever it is terminated or being shut down or being deleted,
 Apart from service discovery and service registry, the next challenge that we have is, load balancing.
 If multiple instances of a same microservice are available, then behind the scenes it is also going
 to perform the load balancing strategy and using the same load balancing strategy.
 It is going to eventually distribute the workload among all the running instances of a microservice
-like loans microservice.
+like cards microservice.
 
 One is client side service discovery, and the other one is server side service discovery.
 We know that the IP addresses will be dynamically changing  whenever we want to perform auto scaling or in the scenarios of failures.
@@ -39,7 +39,7 @@ And once the microservice is started, my central server also expects a regular h
 
  this client side Service Discovery approach, applications are responsible for registering themselves with the service registry during the startup. And similarly they need to unregister themselves when shutting down,
  the account microservice will queries the service registry for the associated IP
- addresses of loans microservice. If multiple instances of the loan service are available inside the registry, the registry
+ addresses of cards microservice. If multiple instances of the loan service are available inside the registry, the registry
  is going to return the list of IP addresses to the accounts microservice.
  Now the responsibility of selecting one of the IP address of the backing service or IP address of the
  loan service is on to the client microservice, which is accounts microservice.
@@ -49,7 +49,7 @@ And once the microservice is started, my central server also expects a regular h
  And apart from the startup, they should also send the regular heartbeat signals to the service registry confirming their health status.
  account service request registry for loan service, upon receiving multiple loan ip addresses
  My account microservice is going to follow a load balancing strategy and based upon this load balancing
- strategy, it is going to forward the request to one of the loans microservice instance.
+ strategy, it is going to forward the request to one of the cards microservice instance.
  client side service discovery is, you have an option to follow multiple strategies, round robin, weighted round robin,
  least connections, or own custom algo,
  So since there is a responsibility on the developers to achieve these client side service discovery,
@@ -86,12 +86,12 @@ spring:
 eureka.instance.hostname we are telling to the Eureka server what host name it has to consider , Obviously inside our local system, the host name is going to be localhost.
 eureka.client.fetchregistry as false The reason is I don't want my Eureka server to fetch the registry
 details of other microservices. My Eureka server never going to call the microservices.
-Whereas in our individual microservices like accounts, loans and cards, this value should be true
+Whereas in our individual microservices like accounts, cards and cards, this value should be true
 register with Eureka. So I'm telling to my Eureka server, Don't register with yourself and don't expose your details into the registry of the service Discovery.
 URL where my Eureka server is going to expose its
 functionality and other microservices they can try to connect to register their details or to discover other service details.
 start config server then eureka
-add   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' in accounts , loans etc
+add   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' in accounts , cards etc
 eureka.instance.prefer IP address as true. register with the Eureka server by default, it will try to register with the host name.
 The host names will make sense whenever you are trying to use DNS mappings inside your microservices
 network. But inside our local system, we don't have any DNS mapping set up. use prefer IP address as true so that my accounts microservice will register with my Eureka
@@ -122,7 +122,7 @@ method signature has to match with the actual REST API method , fetchCardDetails
  So based upon the IP details inside the cache, it is going to invoke this API along with the request which
  is mobile number. So behind the scenes, all the implementation code will be generated by the open feign client.
 
-hit create account, create cards, create loans, then fetchcustomerdetails in account section
+hit create account, create cards, create cards, then fetchcustomerdetails in account section
 
 Sometimes Eureka Server will enter or will activate a self-preservation mode.
 In a normal working microservice network, Eureka Server will expert heartbeats from the microservice instances that are registered with it.
@@ -140,7 +140,7 @@ So with that assumption, it will keep running and keep providing the instance de
 And once the self-preservation mode is activated, it is not going to be expired or deactivated until
 unless a particular threshold of healthy instances is reached or the down services are brought back to online or the network glitch is resolved.
 eureka server default give 3 chances of 30 secs, if not received in any case then evict
-if thresold is 85% , Eureka server realizes 15% of the total instances of loans microservice are expired, then it is not going to expire the other loans microservice instance.
+if thresold is 85% , Eureka server realizes 15% of the total instances of cards microservice are expired, then it is not going to expire the other cards microservice instance.
 eureka.instance.lease-renewal-interval-in-seconds, will have a default value 30s. With this property and its corresponding value, the Eureka Server is going to expect the heartbeat signals from the client microservices for every 30s.
 eureka.instance.lease-expiration-duration-in-seconds =90 , my Eureka server is going to wait a maximum of 90s to receive a heartbeat signal from a particular microservice instance.
 eureka.server.eviction-interval-timer-milliseconds=60*1000 ,Eureka server is going to evict the unhealthy
@@ -155,6 +155,8 @@ service details from the service registry and this is not going to happen every 
 Eureka server should expect per minute. default 15mins, So every 15 minutes this task will run behind the scenes and my Eureka server will know what are the
 total number of heartbeats that it should expect and based upon the total value, it is going to calculate the threshold value and based upon the threshold value, it is going to activate the self-preservation mode.
 When you disable the self-preservation mode use eureka.server.enable-self-preservation-mode=false
+create 2 istance of cards , 8090 , 8091 in docker compose, create long on 8090 and hit account fetch all api,
+you will see sometime we got error because 8091 cards doesn't have details
 
 
 

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `customer` (
     `updated_by` varchar(20) DEFAULT NULL
     );
 
-CREATE TABLE IF NOT EXISTS `loans` (
+CREATE TABLE IF NOT EXISTS `cards` (
     `customer_id` int NOT NULL,
     `account_number` int AUTO_INCREMENT  PRIMARY KEY,
     `account_type` varchar(100) NOT NULL,

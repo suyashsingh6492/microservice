@@ -32,9 +32,17 @@ management:
     web:
       exposure:
         include: '*'
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
   endpoint:
     shutdown:
       enabled: true
+    health:
+      probes:
+        enabled: true
   info:
     env:
       enabled: true
@@ -46,3 +54,7 @@ info:
   app:
     name: "cards"
     description: "Bank Cards Application"
+
+logging:
+  level:
+    cards: DEBUG

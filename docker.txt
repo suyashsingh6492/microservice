@@ -38,7 +38,7 @@ https://github.com/GoogleContainerTools/jib
 https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin
 https://github.com/GoogleContainerTools/jib/blob/master/examples/spring-boot/README.md
  ./gradlew jib --image=suyashs52/cards-service:v1 --platform linux/amd64
- ./gradlew jib --image=suyashs52/loans-service:v1
+ ./gradlew jib --image=suyashs52/cards-service:v1
 
  docker image push docker.io/suyashs52/card-service:v1
 
@@ -114,13 +114,14 @@ cards-service %         docker build . -t suyashs52/card-service:v1
 loan-service % docker build . -t suyashs52/loan-service:v1
 config-server % docker build . -t suyashs52/configserver:v1
 eureka-server % docker build . -t suyashs52/eureka-server:v1
+gateway-server % docker build . -t suyashs52/gateway-server:v1
 push all the images
  docker image push docker.io/suyashs52/accounts-service:v1
  docker image push docker.io/suyashs52/card-service:v1
  docker image push docker.io/suyashs52/loan-service:v1
  docker image push docker.io/suyashs52/configserver:v1
  docker image push docker.io/suyashs52/eureka-server:v1
-
+ docker image push docker.io/suyashs52/gateway-server:v1
  cd docker-compose/default
 docker compose up -d
 

@@ -74,7 +74,7 @@ If you don't mention these value as true, the cloning of the GitHub repo will ha
 some issues like your config
 
 server may get started properly, but when the very first request coming towards your config server
-like in the form of accounts microservice or cards or loans microservice, then it cannot clone
+like in the form of accounts microservice or cards or cards microservice, then it cannot clone
 and it cannot read the configurations. And in such scenarios it is going to create some issues on the accounts microservice.
 
 force-pull as true. We are telling to override all the local changes whenever you are trying to start or restart your config server.
@@ -103,7 +103,7 @@ The server successfully processed the request, but it is not returning any conte
 my spring cloud bus since it detected a change happened on the config server version,
 it will communicate the same to all the microservices instances that are registered with the rabbitmq.
 it will communicate the same to all the microservices instances that are registered with the rabbitmq.
-Since the loans and cards microservices are also registered with the rabbitmq, the change might have
+Since the cards and cards microservices are also registered with the rabbitmq, the change might have
 communicated to them and they might have refreshed the properties without the restart of the application and without invoking these bus refresh or refresh endpoints.
 
 But here we are looking for an automated approach which will automate the refreshing of the properties
