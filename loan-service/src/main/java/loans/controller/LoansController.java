@@ -1,10 +1,5 @@
 package loans.controller;
 
-import loans.constant.LoansConstants;
-import loans.dto.ErrorResponseDto;
-import loans.dto.LoansDto;
-import loans.dto.ResponseDto;
-import loans.service.ILoansService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+import loans.constant.LoansConstants;
+import loans.dto.ErrorResponseDto;
+import loans.dto.LoansContactInfoDto;
+import loans.dto.LoansDto;
+import loans.dto.ResponseDto;
+import loans.service.ILoansService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class LoansController {
     )
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createLoan(@RequestParam
-                                                  @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+                                                  @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
                                                   String mobileNumber) {
         iLoansService.createLoan(mobileNumber);
         return ResponseEntity
@@ -86,8 +87,8 @@ public class LoansController {
     public ResponseEntity<LoansDto> fetchLoanDetails(
             @RequestHeader("bank-correlation-id") String correlationId,
             @RequestParam
-                                                     @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
-                                                     String mobileNumber) {
+            @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
+            String mobileNumber) {
         logger.debug("bank-correlation-id found: {} ", correlationId);
         LoansDto loansDto = iLoansService.fetchLoan(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK).body(loansDto);
@@ -118,11 +119,11 @@ public class LoansController {
     @PutMapping("/update")
     public ResponseEntity<ResponseDto> updateLoanDetails(@Valid @RequestBody LoansDto loansDto) {
         boolean isUpdated = iLoansService.updateLoan(loansDto);
-        if(isUpdated) {
+        if (isUpdated) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
-        }else{
+        } else {
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_UPDATE));
@@ -153,17 +154,27 @@ public class LoansController {
     )
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteLoanDetails(@RequestParam
-                                                         @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+                                                         @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
                                                          String mobileNumber) {
         boolean isDeleted = iLoansService.deleteLoan(mobileNumber);
-        if(isDeleted) {
+        if (isDeleted) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
-        }else{
+        } else {
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
         }
+    }
+
+
+    @GetMapping("/contact-info")
+    public ResponseEntity<LoansContactInfoDto> getContactInfo() {
+        LoansContactInfoDto loansContactInfoDto = new LoansContactInfoDto();
+        logger.debug("Invoked Loans contact-info API");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(loansContactInfoDto);
     }
 }

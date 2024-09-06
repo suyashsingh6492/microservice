@@ -1,0 +1,200 @@
+resilient in nature so that they can withstand tough times like network problem or any performance issues.
+where one of the service is failing or responding very slowly.
+If one of the service is failing or working very slowly, all the dependent services like Accounts
+Gateway Server, they will keep waiting for the response and it will eventually have a ripple effect
+on other microservices which will consume all the threads and memory inside these dependent microservices.
+how we are going to make our services self-healing capable?
+Maybe if I try to retry multiple times, like three times or four times, my service may start working and I may get a successful response.
+if I can timeout within a very short period of time, that will release some memory or threads inside the microservice where we are having a problem.
+
+Long back inside the Java ecosystem We used to have a library called Hystrix,  However historic entered maintenance mode in 2018, and it is no longer being actively developed.
+A new library came into picture with the name Resiliency4j.
+Resiliency4j is a lightweight fault tolerance library designed especially for functional programming.
+So these are the patterns with the name like circuit breaker, fallback, retry, rate limit, bulkhead.
+
+in electrical: circuit breaker safety device designed to protect the electrical circuit from excessive current or any potential
+fire hazards. overload of the electricity in such scenarios  it is going to automatically open or it is going to automatically trip
+itself. So there won't be any electricity passing towards the components t
+Maybe if one of the microservice is responding very slowly, it is not going to be in such state forever.
+the network problem is going to be a temporary problem.
+circuit breaker itself, it is going to monitor all the remote calls happening to a particular service.
+If a particular service like micro service, if it is taking too long to respond or if it is not responding
+the circuit breaker is going to kill that call. if the majority of the calls are failing due to the slow response
+the circuit breaker implementation will pop up and it will make sure all the future requests coming
+to the courts microservice are failing immediately, which means it will never allow the traffic to
+the courts.  my dependent microservices like accounts microservice and gateway server.
+They don't have to wait for a longer time So by failing fast we are preventing the ripple effect on the gateway server and the accounts microservice.
+circuit breaker pattern stopped all the incoming. Traffic and gave enough time for your cart's microservice to recover.
+fail fast, fail gracefully, recover seamlessly because it is going to give them some rest for a short period of time, like 30s
+
+By default circuit breaker pattern is not going to monitor all your microservices.
+We need to configure this circuit breaker pattern wherever we need.
+Whenever we activate the circuit breaker pattern on any microservice, it is going to control the flow
+of traffic towards the microservice by using three different states
+very first state is closed state. it is going to accept all the requests
+So based upon these monitoring and analysis, if my circuit breaker identifies that most of the requests
+coming to the microservices are being failed, then it is going to immediately jump to the open status.
+ close to open status is based upon the failure rate threshold that you have defined.
+ if 50% of my traffic that is coming towards my microservice is failing, then please move to the open status.
+ circuit breaker is in open status, that means it is not going to send any request to the actual microservice.
+ Instead, it is going to fail immediately and send the error response to the invoking microservices
+ my circuit breaker pattern will wait in the open status based upon your configurations. Maybe if you have configured for 90s up to 90s
+ After 90s, my circuit breaker pattern will move into the half open status.
+ circuit breaker will allow only few requests based upon your configurations. Maybe it will allow 10 requests or 20 requests,
+ Again, if at least 50% of the requests are failing, then it will again jump back to the open status
+ At some point of time when my circuit breaker realizes that majority of the traffic or the requests
+ are being processed successfully, then it will move from half open status to closed status.
+
+ they want you to implement circuit breaker pattern at the Edge server / gateway server itself.
+resilience4j.circuitbreaker:configs:default:slidingWindowSize: 10
+ how many requests it has to initially monitor before it tries to change the status from close to open.
+ at least monitor 10 requests coming towards my accounts .
+permittedNumberOfCallsInHalfOpenState Once my circuit breaker pattern moved into open status, it will never be in open status forever.
+mentioned value2 this means I want my secure breaker pattern to allow to request in the half open status.
+Based upon how these two requests are processed, it can decide whether to go back to the open state
+failureRateThreshold if at least 50% of my requests are failed, then my circuit breaker pattern can move to the open state from the closed state.
+waitDurationInOpenState my circuit breaker pattern, it is going to wait 10s whenever it tries to move to the half open state and allow the partial traffic.
+
+use reactive jar file, now hit http://127.0.0.1:8072/bank/accounts/api/hello
+and check http://127.0.0.1:8072/actuator/circuitbreakers , accountsCircuitBreaker you will see json
+"state": "CLOSED" is
+we can also try to understand the events that are happening behind the scenes under the circuit breaker.
+http://127.0.0.1:8072/actuator/circuitbreakerevents
+put a break point in accounts hello api, and don't release it . after sometime gateway thorw error gateway timeout
+last json in circuitbreakerevents will give u type= 'ERROR' , sent api mulitple time gateway api
+http://127.0.0.1:8072/bank/accounts/api/hello At some point of time, you can see the status change, which is 503 and the error right now is service
+unavailable., now status is OPEN , error type is ERROR then FAILURE_RATE_EXCEEDED , STATE_TRANSITION, NOT_PERMITTED
+Now my gateway server is not going to waste its resources by invoking the accounts microservice my circuit breaker pattern which is sitting in the middle, always throwing an immediate error to the gateway server.
+after sometime is it HALF_OPEN, OPEN,  and goes on , remove break poit , status is closed
+any fallback mechanism inside the response, we are throwing some runtime exception
+use .setFallbackUri("forward:/contactSupport") so you won't get run time error
+http://127.0.0.1:8072/actuator/circuitbreakerevents?name=accountsCircuitBreaker
+
+we need to see if there is any integration between feign client and circuit breaker is available,
+search feign client circuit breaker support ,
+in account microservice don't use reactor Since we have not built accounts microservice based upon spring reactor,
+and in yml add   spring: cloud:openfeign:circuitbreaker:enabled: true , we have activated circuit breaker for all the openfeign clients inside the accounts
+also add configuration part too. in blog check fallback mechanism ,
+create 2 new interface of feign client in accounts service and send the null information in case of issue,
+and do the null check in called service layer
+hit
+check http://localhost:8085/actuator/circuitbreakers
+if no lb available then status is closed  ,if you put breakpoint then error
+CardsFeignClientfetchCardDetailsStringString" first we have the interface name, then method, then parameters
+after 12 request you can see the status is in open status ,
+when you hit any api, and response take more then 10mins , frontend might weight for that much time,
+We are unnecessarily making our resources to wait for this response, which we never know is going to come.
+Internally this circuit breaker is going to have the configurations related to timeout. By default,
+circuit breaker timeout will wait maximum for one second. Beyond one second, it will immediately go back to the fallback mechanism that you have mentioned.
+So here we have two properties connection timeout and response timeout.
+Connection timeout is the time that your Gateway server is going to take to get a connection thread from the other microservice.
+ if Gateway server is trying to send a request to the loans microservice, first it will try to get a connection of loans microservice. Sometimes due to network problems, the time to get the connection also may take longer time.
+ So that's why we are trying to configure 1000 milliseconds, which is one second. we are not going to wait and we are going to kill the request.
+ response-timeout. So this is the maximum time that your gateway server is going to wait to receive the response from the respective microservice like loans microservice.
+httpclient:connect-timeout: 1000 , response-timeout: 2s
+My client application is not even waiting. It wait for a maximum time of two seconds and beyond two seconds
+since it is not receiving the response. My gateway server throws an error to the client saying that gateway timeout.
+Since these timeout configurations that we have configured inside the Gateway server are global, they are going to applicable for all kind of microservice
+But for accounts microservice, it may not be the scenario because inside account microservice, we configured a pattern circuit breaker and this circuit breaker has its own internal timeout configurations.
+if you configure the response timeout with a negative value that will disable the global response timeout configurations for a particular route
+
+ retry pattern? we can configure multiple retry attempts whenever a service is temporarily failing.
+ in the scenarios like network disruption we need to be very clear on how many times we want to retry an operation.
+ you can also conditionally invoke based upon many factors like error codes, exceptions or response status.
+  we can follow an backoff strategy. Maybe the first retry you are trying to do after two seconds and the second retry  wait for 4 scs
+  we can make our circuit breaker pattern to open after certain number of retries failed consecutively.
+  whenever you are trying to implement Retry Pattern, please make sure the respective API is of type Idempotent (every time same response for input req)
+  with loan use retry ,
+ .setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true))) gateway will wait for 100 milliseconds whenever it
+ is trying to initiate the very first retry operation. So with this maxBackoff() at any point of time, my spring cloud gateway will wait only for a maximum
+of 1000 milliseconds or one second between two retry operations. Since we are setting these boolean as true, my Spring Cloud Gateway always considered the previous
+backoff. hit the api , it will timeout at 8.45 sec ,not 2 secs This confirms our gateway server also trying to retry even in the scenario of RuntimeException.
+
+use @retry and add fallbackMethod , in fallback Inside this method we need to accept the same number of parameters like we are accepting for the getBuildInfo().
+The second rule that we need to follow is this fallback method should accept a method input parameter of type throwable.
+Like if I configure three retry attempts, even after three retry attempts, my original method is not able to return a successful response in such scenarios, my fallback is going to get invoked.
+whereas with Gateway Server, there is no option for us to implement fallback mechanism.
+add resilience4j.retry: in yml of accounts.
+
+because if there is a NullPointerException with a given input data, regardless of how many times you retry, you will always get a NullPointerException.
+ignoreExceptions The retry pattern is activated, but behind the scenes it is not going to make the multiple retry attempts.
+and you get .9 as response
+we define an exception under these retry exceptions, the retry will happen only for these kind of exceptions, which is like
+timeout exception and all the remaining exceptions automatically wil  you don't have to mentiothe ignore exceptions.
+run accounts first then gateway t see changes,
+
+rate limiter pattern.: control and limit the rate of incoming requests to  a specific API or to a microservice.
+However, sometimes if you don't put restrictions and controls on how many requests being consumed by
+a specific client or a specific person, then there can be a good chance the performance degradation or resource exhaustion may happen.
+ it is simply going to return an for 429 Http status code, which is too many requests and it cannot accept more requests.
+ we need a key resolver. Do we want to enforce this rate limiter based upon an user or based upon the session or based upon the
+IP address or based upon the server? There is also a default implementation of KeyResolver, which is PrincipalNameKeyResolver.
+PrincipalNameKeyResolver, it is going to fetch the current logged in user name  going to enforce RateLimiter and by default
+ KeyResolver does not find a key, the requests are going to be denied if needed.
+ rate limited used token bucket algorithm We need to pass three different type of properties. ReplenishRate, burst capacity and requested tokens
+ replenishRate? This property defines how many requests per second to allow.
+ In other words, this is the rate at which the token bucket is filled for this replenishRate.If you define 100, that means for every one second behind the scenes, 100 tokens will be added to your bucket.
+ So to avoid this kind of overfilling the bucket with a large number of values, we are going to set
+ the burst capacity. we are going to set what is the number of tokens that bucket can hold.
+ So if I set 200 as the burst capacity after two seconds, my replenishRate is going to fill 200 tokens.
+ requested tokens.: how many tokens a request cost. each request will cost a single token, but if needed, you can change this to 10 or 100
+ add redis dependency spring-boot-starter-data-redis-reactive,
+ create userKeyResolver nd redisRateLimiter bean
+ defaultReplenishRate – how many tokens per second in token-bucket algorithm. defaultBurstCapacity – how many tokens the bucket can hold in token-bucket algorithm. defaultRequestedTokens – how many tokens are requested per request.
+  userKeyResolver. I'm trying to provide a key based upon which my RateLimiter pattern has to work
+for cards use rate limiter
+you need to run redis docker run -p 6379:6379 --name bank-redis -d redis        , image name is redis, -d detached mode --name name of local container
+add in gateway yml  spring: data: redis:connect-timeout: 2s , host: localhost , port: 6379 timeout: 1s
+to do load testing use apache benchmark https://httpd.apache.org/download.cgi
+use google for testing ab -n 10 -c 2 -v 3 http://localhost:8072/bank/card/api/contact-info
+I'm trying to send ten requests. concurrency is 2,  I want to send two concurrent requests every time.
+ -v indicates verbose when I give three value for these verbose flag that indicates to this Apache benchmark server that I want to see the detailed report in the output.
+ out of 10 only 1 passes, because based upon our RateLimiter configuration for a user, we have assigned only one token for each request.
+ after 1st request we got 429 status code, too many request ,
+ Since we are not sending any header inside the request with the name user, it is going to consider the KeyResolver value as anonymous.
+in code use  @RateLimiter(name= "getJavaVersion") and mention resilience4j.ratelimiter: in yml file for all so default:
+limitRefreshPeriod: 5000 milliseconds. That means for every five seconds I want to renew the quota.
+So what is our quota that I have set for each refresh period? identify the same with the help of limit for period limitForPeriod
+configured, only one request is allowed. But in real production applications the number will be in thousands.
+timeoutDuration Think like one of the thread came and it is trying to invoke this specific API, but the RateLimited
+did not allow it because the number of requests allowed during a particular period is exhausted.
+So in such scenarios, with the help of this timeout duration, we are telling what is the maximum time that my particular thread can wait for the new refresh period to arrive with the new quota.
+Whatever configurations that you are going to provide here, this is going to apply for all type of requests coming towards your API.
+ bulkheads? physically partitioning the entire
+ship so that even if one of the compartment is flooded with the water, it is not going to affect other partitions or the compartments inside the ship.
+ help of this pattern, we can isolate and limit the impact of failures or high loads in one component from spreading to the other component.
+ with the help of bulkhead patterns, we are defining the boundaries for these REST APIs.
+ So inside these boundaries we are going to assign for myAccount or for myCustomerDetails.
+ we have provided minimum number of threads from the thread pool to the myAccount
+ @Bulkhead(name="BACKEND",  , and in yml define name config no of thread it can used,
+
+
+ aspect order. If I have multiple patterns defined for a single API or for a single method or for a single service. which execute first
+see by default, this is the order that resiliency4j library is going to follow.
+So first there'll be bulkhead after the bulkhead TimeLimiter and after the time limiter
+we have RateLimiter and after the RateLimiter we have circuit breaker and after the circuit breaker at the end we have retry.
+inside your application.yml. So with these configurations we are giving higher priority to the retry.
+check resilienc4j document
+
+I created a new redis service because to implement the RateLimiter pattern with the help of Spring Cloud Gateway, we need this service.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
