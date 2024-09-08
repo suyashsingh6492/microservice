@@ -78,4 +78,15 @@ my spring boot actuator is going to expose all the metrics related to the applic
  humans, since the same format cannot be understand by the Prometheus, we need to use micrometer.
  Micrometer automatically exposes the actuator/metricsdata into a format that a particular monitoring system can understand.
  We have a design pattern with the name fact design pattern. It is going to deploy a front facing interface that will handle a lot of complexity behind the scenes.
+ So this is very similar to SLF4J.
+ With the help of Loki, we are trying to aggregate the logs, whereas with the help of Prometheus we are going to aggregate the metrics
+   implementation 'io.micrometer:micrometer-registry-prometheus' add this dependency
+   add in yml file   metrics: tags:application: ${spring.application.name} under management tag
+ account microservice localhost:8085/actuator/metrics/system.cpu.usage ,
+we add the dependency related to Micrometer and Prometheus inside our microservice, the micrometer
+is going to expose a URL which is /actuator/prometheus.
+ localhost:8085/actuator/prometheus
+ o you can see here these are all the metrics, information which are present inside a format that that my Prometheus can understand.
+ So my Prometheus is going to invoke this API path for every five seconds or every 10s or every one minute based upon your configurations inside the Prometheus.
+
 
