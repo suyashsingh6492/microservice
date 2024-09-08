@@ -40,4 +40,4 @@ out/
 ### VS Code ###
 .vscode/
 /docker-compose/default/.data/
-/docker-compose/default/.data/
+/docker-compose/default/.data/**

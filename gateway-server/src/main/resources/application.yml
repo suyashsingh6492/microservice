@@ -37,7 +37,9 @@ management:
     health:
       probes:
         enabled: true
-
+  metrics:
+    tags:
+      application: ${spring.application.name}
 info:
   app:
     name: "gateway-server"
@@ -46,6 +48,9 @@ logging:
   level:
     com:
       gateway: DEBUG
+
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
 
 
 resilience4j:
