@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -42,16 +43,7 @@ import java.time.temporal.TemporalAdjusters;
 public class AccountsApplication {
     //http://localhost:8085/swagger-ui/index.html
     public static void main(String[] args) {
-        //  SpringApplication.run(AccountsApplication.class, args);
-
-        OffsetDateTime endDate = OffsetDateTime
-                .now()
-                .with(LocalTime.of(0, 0, 0))
-                .with(TemporalAdjusters.firstDayOfMonth());
-        OffsetDateTime startDate = endDate.minusMonths(1)
-                .with(TemporalAdjusters.firstDayOfMonth());
-        System.out.println(startDate);
-        System.out.println(endDate);
+          SpringApplication.run(AccountsApplication.class, args);
 
     }
 

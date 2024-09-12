@@ -27,6 +27,7 @@ public class SecurityConfig {
                         .pathMatchers("/bank/cards/**").hasRole("CARDS")
                         .pathMatchers("/bank/loans/**").hasRole("LOANS"))
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec
+                        //.jwt(Customizer.withDefaults()) default configuration of jwt
                         .jwt(jwtSpec -> jwtSpec.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
         serverHttpSecurity.csrf(csrfSpec -> csrfSpec.disable());
         return serverHttpSecurity.build();

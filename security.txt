@@ -111,6 +111,130 @@ go to jwt.io, and paste it in encoded section, iss: issuer, now paste the id tok
 
 in order to convert my gateway server as an OAuth2 resource server, I need to use this dependency which is spring-security-oauth2-resource-server.
 And since we are using JWT related tokens, we need to make sure we are adding these spring security oauth2-jose dependency
+oauth2ResourceServer(). So with this we are trying to convert our gateway server as an Oauth2 resource server.
+because csrf protection is only needed when browsers are involved. Since in our scenario there are no browsers involved, we can disable this protection.
+in application.yml
+spring.security.oauth2.resourceserver.jwt.jwk.- set - url and
+what is the auth server url using which my resource server can download the certificates during the startup of this resource server application.
+
+During the startup of the resource server, it is going to connect with the resource server and it is going to download a public certificate from the Keycloak server.
+Using this public certificate, my resource server can validate if a given access token is really issued by the Keycloak server.
+The keycloak is going to have private certificates. Using the private certificates,the keycloak can only issue the new tokens, whereas with the help of this public certificate, any
+server like resource server can validate if a given access token is valid or not.
+in Authorization use oAuth2. token name: clientcredentails_accesstoken, grant type client_credentials
+client id is bank-branch-cc, add other detail, client authentication : send client credentials in body only,
+Get a New Access Token click on it, use , on left side: Add authorization data to request header ,
+token auto populated,
+Inside the auth server , go to client bank-branch-cc,
+Since this client is an client which is following the client credentials grant type, that means this is also another application.
+So in such scenarios we should not configure under roles, we should configure under service accounts role
+click on Assign role> cancel
+click on realm role>create role > accounts , LOAns , cards,
+click on Assign role> filter by realm role> Accounts. assign
+now generate a new token you will see ACCOUNTS in realms roles after decoding at jwt.io
+ keycloak role converter because this class is going to help me to extract the roles that I'm getting from the keycloak into the format that spring security framework can understand.
+  GrantedAuthority Is an interface available inside the spring security framework. Whenever we want to convey the role's information or privileged information, we need to make sure we are sending those details with these interface formats only.
+  The purpose of this getClaims() method is it will give you access to the payload data available inside your access token.
+  If you see here inside our access token, we have a key with the name realm_access.
+  to assign these prefix role underscore because whenever we use this has_role method inside the spring security framework, internally it is going to use a prefix which is role underscore.
+  check hasRole method
+  this SimpleGrantedAuthority, there is a constructor which accepts the role name in the format of
+
+  string and post that it is going to return the object of SimpleGrantedAuthority by using this role information.
+setJwtGrantedAuthoritiesConverter which means I need to tell where I have written my logic to convert the roles present inside the JWT token into a granted authorities format.
+
+if there is a UI application or a mobile application, there will be an associated end user who is trying to use that website or mobile application.
+ we should use authorization code grant type flow
+ Once the auth server validated the end user details, it is not immediately issuing an access token to the client application because it has to validate the client credentials as well.
+ where the client application is trying to redirect the end user to the login page of the auth server. So in that process it has to send the what is a client Id but not the client secret,
+  my auth server is going to alert the end user saying that you are about to share all your resources with so and so application.
+  Please provide your consent. So to display that information the server need this client ID, so based upon the client ID, it is
+  going to fetch all the client related details. Along with the client ID,
+  my client application should also provide what is the redirect URL because once the end user is logged in successfully my auth server has to redirect the end user to a web page
+  After redirect uri, my client application also should ask what are the scope details that it is trying to request from the auth server.
+  This is very similar to what we have discussed inside the client credentials grant type flow.
+  scope like read,  state variable. make sure there is no csrf attack happening in the authorization code grant type flow.
+  cclient application should also send response type inside this response type It needs to mention
+ a value code and this indicates to my auth server saying that that my client application is trying to follow the authorization code grant type flow.
+
+ And as a response of this step two and step three, it is expecting an authorization code from the auth server.
+
+ authorization code is received by my client application as part of step two and three in
+ the Step five, the client application is going to make a one more request to the auth server to get an access token.
+ So in this step five, first it is going to send the code that it has received in the previous step
+ it should also send what is a client ID and client secret to prove its identity.
+ Now, under the grant type, we should mention the value authorization code and redirect uri.
+ https://www.oauth.com/playground/ select authrization code, open new tab for client details,
+ and click continue in step 1: 1. Build the Authorization URL
+ https://authorization-server.com/authorize?
+   response_type=code
+   &client_id=9SlSZg4iNxnXKR_GyALBAk-F
+   &redirect_uri=https://www.oauth.com/playground/authorization-code.html
+   &scope=photo+offline_access
+   &state=MeWg-FKRpWMixnc-
+  continue, enter use name and password: , The application "OAuth 2.0 Playground" would like the ability to access your photos.
+  redirect to client ?state=MeWg-FKRpWMixnc-&code=EeJ7C7IzwzTjfJot3-ySa6BVHZKKR8g75PZTN8woZlZBa0YL
+  when matched Now you're ready to exchange the authorization code for an access token.
+  The client builds a POST request to the token endpoint with the following parameters:
+ POST https://authorization-server.com/token
+ grant_type=authorization_code
+ &client_id=9SlSZg4iNxnXKR_GyALBAk-F
+ &client_secret=MSi5Yao2yc_v_YCaT3N0mly1UwtOJzz4lA7DThmWp4ncGP3p
+ &redirect_uri=https://www.oauth.com/playground/authorization-code.html
+ &code=EeJ7C7IzwzTjfJot3-ySa6BVHZKKR8g75PZTN8woZlZBa0YL
+ and get the reponse {
+                       "token_type": "Bearer",
+                       "expires_in": 86400,
+                       "access_token": "1SYCtZu-HjAtJY5FD-9Zq7piEy-0ekA9vb9WchnCbe39MJrUqWg0CKz8dsctpq-wqq-HOd4H",
+                       "scope": "photo offline_access",
+                       "refresh_token": "_FNIxXx5i_3YC3BVsrtmqWVC"
+                     }
+
+Why can't my authorization server can issue an access token with a single request like we saw in the very first step,
+the auth server will redirect the end user to the login page and it is going to issue an temporary authorization code using the same authorization code
+Whereas with this flow, since there is browser or mobile application involved, there is a good chance
+some hacker can be involved in the communication between the client application and auth server and he may steal the access token.
+We have a grant flow with the name implicit grant type flow, which will get an access token within a single step.
+
+So since the Gateway server is going to act as a resource server, my client application first redirect my end user to a login page of auth server.
+So here the auth server that we are trying to use is Keycloak. The end user has to enter his credentials and post a successful authentication.
+The keycloak is going to issue an authorization code to my web application and behind the scenes it is going to make a one more request to get an access token.
+So using the same access token, my client application is going to forward the request to the Gateway server, which is acting as an edge server
+The Gateway server as a next step, it will try to validate if the access token provided by the client application is valid or not by connecting with the keyclock.
+ then it is going to forward request to the individual microservices.
+
+ in keycloack create a new client > name: bank-branch-ac , ac means authorization code,
+ enable Client authentication, select Standard flow , unselect all flow, in Valid redirect URIs
+ valid redirect URL in ideal scenario, we should mention what is the URL that my auth server has to redirect the end user post successful authentication.
+whatever valid redirect URL that your client application is going to send in the request, the same has to be configured here.
+If we don't have this check, then hackers will redirect the access token to their own website, which is very danger.
+* any redirect uri ,
+under the web origins, I can mention Asterisk
+
+The purpose of this web origins is, in real world, your client application may deploy in a different
+domain and different port number, whereas auth server are your microservices might be deployed in a different domain and port number.
+In such scenarios, the browsers will stop the communication between them by throwing an cors related error.
+By default, it will stop the communication between two different domains and port numbers until unless the backend server is allowing.
+So here I am configuring inside my auth server saying that please accept the request from cross domains as well
+once done save, get client id and secret . create add user, username suyash, password 12345 save
+Keycloak exposes a lot of REST APIs using these REST APIs,
+So all the actions that an admin can do with the help of UI, all these actions are supported by REST API as well.
+in postman select authroization type OAuth 2.0, token name: authcode_accesstoken, grant type Authorization Code,
+add client id: bank-branch-ac,
+call back url is the redirect url,
+postman can redirect the end user to the login page of the keycloak. For the same, if you can see here, there is an option here like authorize using browser.
+before clicking on get new access token , close the browser, and logout from keycloack
+now after click login screen appear enter creds suyashs52@gmail.com 12345, it will redirect to
+https://oauth.pstmn.io/v1/callback?
+allow popup , click ok, go back to postman, authenticated, but 403 because no role assigned
+
+
+
+
+
+
+
+
 
 
 
