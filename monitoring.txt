@@ -173,6 +173,31 @@ This tempo again is a open source product, highly scalable and cost effective so
  So tempo is capable of only storing the tracing information.
  UI application which is going to connect to the tempo and display the same inside an UI page. That's where Grafana will come into picture.
 
+in microservice-db-config , add env variable       JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-1.33.5.jar"
+OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317 OTEL_METRICS_EXPORTER: none
+trying to pass Java agent parameter along with the path where my Opentelemetry jar is going to present.
+So the Opentelemetry is going to send all the tracing related information to this tempo service
+ I don't want to get metrics with the help of Opentelemetry because we already used a better tool whenever we are trying to export metrics, which is Prometheus.
+ add into service configserver environment OTEL_SERVICE_NAME: "config-server" and same in other microservices
+ create tempo configuration , create a new docker service tempo and add detail in grafana>datasource.yml
+we are copying java agent jar in all microserices so it takes aournd 2mins, so add health check time
+for all microservices interval: 20s and  retries: 20 from all 10,
+after booting up docker compose , hit account crete, load create, cards create api
+go to localhost:3000 > explore> logs info> you will see tempo in drop down , select loki ,
+select accounts, search log will be like DEBUG  [accounts, b6f78ef228384fse,2f44026b4431]
+center is trace id copy it and search it
+go to tempo , and search trace id , you will see graph , gateway server then accounts with timing
+into loans cards similar to this we have zipkin , jaeger
+go to datasource> loki > derived fields we can try to tell to the Loki whenever it identifies some pattern,
+it can try to derive a field and using that field we can try to link with other components inside the grafana.
+add> traceid> regex is \[.+,(.+),.+\]    , internal link: tempo (datasource)
+query is ${__value.raw}  say here is whatever value that we have extracted, the same we want to
+pass as a query value to this TempoDataSource > save
+
+go back to loki and search for the logs click on any logs you will see button tempo after clicking it will show the graph
+
+
+
 
 
 

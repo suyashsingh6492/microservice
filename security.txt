@@ -1,0 +1,123 @@
+Apart from securing our microservices, we should also think about how to have a single or centralized
+identity and access management component.
+application that an organization develops, they can leverage these Oauth2 specifications to secure their applications.
+Basic Authentication: the authentication will be completed and after the successful authentication, the
+backend server is going to generate a session value and the same it is going to store inside a cookie of the browser.
+So as long as the session is active, the user can access the any protected resources and URLs.
+The drawbacks of this approach is backend server will have both business logic and authentication logic tightly coupled.
+Moreover, this approach is not mobile friendly or REST API friendly.
+it does not have a proper solution to grant temporary access to your information to the third party clients
+Whereas in Oauth2 framework, we have a proper solution on how to temporarily grant access to the Google photo
+Oauth2 recommendation, they separated all the authentication and authorization logic into a separate component called authorization server or authentication server.
+the Google products, they are going to send the credentials of the end user to the same auth server
+GitHub is trying to give a temporary access token with a limited access to the StackOverflow.
+OAuth stands for Open authorization. It is a free and open source protocol built on IETF standards
+right now the authors of OAuth2 is trying to build a newer version with the name OAuth 2.1.
+The process of granting permissions are concerned to third party applications are often referred to as authorization
+For all these applications and scenarios, there are different, different grant flows available inside the Oauth2 framework.
+if two backend servers are trying to communicate, then we have a grant flow specific to that scenario.
+Whereas a UI application or a mobile application is trying to communicate with a backend server, then there is a separate grant flow for it.
+OAuth2 we have to build a separate component with the name authorization server and this authorization
+server is responsible to receive the request from the clients and provide access token based upon the successful authentication.
+So who is this resource owner?Usually the resource owner is the end user inside the stack overflow scenario
+I want to log in with the help of my GitHub details. So I own the resources inside the GitHub server,
+like my email address, my display name.
+So all those details are belongs to me.  Since I want to share my resources to the third party application
+by proving my identity with the authentication server of GitHub,  the end user who owns the resources we call him as an resource owner.
+In the Stack overflow scenario, the resources can be my email address or my profile details.
+Client:This client is the website or mobile application or an API who want to access the secured resources
+on behalf of the resource owner. In the scenario of StackOverflow, the StackOverflow website, they want to interact with the GitHub
+Authorization Server.: This is the component at the server which knows about the resource owner.
+resource owner should have an account in this server. Suppose in the case of StackOverflow, I as a resource owner should have an account inside the GitHub
+ we can never use authorization server if we don't register our details with it.
+ So what is the authorization server in the scenario of StackOverflow, the GitHub server which is responsible
+ to authenticate the end user at the resource owner, we call that server as authorization server.
+  Resource Server.: This is the server where the resources of the resource owner are stored.
+  Usually inside enterprise organizations like GitHub, Google or Facebook or any other organizations,
+  they will have separate servers handling the authentication and storing the resources of the end user.
+
+ once the authentication is successful, my authorization server is going to issue an access token to the client
+ Using the same access token, the client application is going to send a request behind the scenes to the resource server.
+ If the resource server is satisfied with the validity of the access token, then it is going to give the resources of the resource owner.
+ Like in the stack overflow scenario, the resource will be my email details, my basic details like my display name.
+
+ scopes.: These are the granular permissions the client wants, such as access to a data or to perform certain actions.
+ The auth server can issue an access token to client based upon the scopes. These scopes decide what actions the client application can perform.
+ GitHub might have issued a scope to the client application to read my email details and basic details.
+ So whenever an access token issued by the authorization server, it is going to construct the scopes.
+ So with this access token, my client application can interact with the resource server and it can only
+ perform the actions based upon the privileges defined by the scope.
+
+ The primary reason why the OAuth two specification built is, to support the authorization but not the authentication.
+ With the help of authentication, we can only authenticate the end user whether he is a legitimate user by validating his credentials.
+  a lot many organizations, they found a way to use the OAuth2 framework for authentication as well.
+  This OpenID Connect framework, which built on top of the OAuth2.
+  It provides authentication by introducing a new ID token, and these ID token contains a set of information about the end user or about the resource owner.
+  Http protocol is a base protocol for all the communication inside the web. On top of these Http protocol
+  oauth2 framework is built and this OAuth2 framework is going to support authorization.
+  On top of this over to framework, there is a small wrapper framework built which is OpenID Connect, and this OpenID Connect is going to support authentication.
+  And with this OpenID Connect, we can easily identify the identity details of the end user.
+  So by combining both of these two standards, a new concept came into picture, which is IAM Identity and Access Management.
+  The short form of OpenID Connect is OIDC
+  It is going to follow the same standards like Access Token, both these access token and ID token.
+  They are going to use the JWT standard, which is Json web token standard.
+  Keyclock is an open source identity and access management product.
+  Okta is very famous for enterprise applications.
+  Amazon Cognito, so it is going to provide identity and access management
+  spring team also they developed a new project with the name Spring Authorization Server.
+  which scenarios we need to use this grant type flow.
+  two different backend servers, they are trying to communicate with each other.
+  So in this communication, if you want to enforce security, then this is the perfect grant flow that we can use.
+   leverage Keycloak to set up the auth server inside our Microservice network.
+   We'll make our gateway server as a resource server
+   The resource server are the gateway server is going to send the response only if it receives the proper
+   access token from the client application that is issued by the auth server.
+   So the client is going to request the auth server to issue an access token and in the same process the
+   client application should prove its identity
+   it is going to send the client credentials to the auth server saying that this is my client ID and this
+   is my client secret.  client application is some other back end application or some other API
+   my auth server receives the request and
+   once it validated the credentials provided by the client application, it is going to issue an access   token to the client application.
+   access token is received by the client application, the client application is going to send
+   the same access token to the resource server. Along with the access token it will also convey which resource it is trying to access.
+   if the client application has enough privileges to invoke that particular
+   secure API or secure resource, then my resource server is going to respond to the client application. Your token is validated successfully.
+   Here are the protected resources that you have requested,
+   ext  API client who want to connect with my microservices behind the scenes, they need to work with the admins of the key clock to register themselves as a valid client application.
+   Because the keyclock should not give access tokens for all type of external clients. Because the keyclock should not give access tokens for all type of external clients.
+-e for environment variable , KEYCLOAK_ADMIN is username , start-dev = run in dev mode
+So behind the scenes the keycloak is going to have some internal database using which we can store all the user credentials and the client credentials.
+
+   https://www.keycloak.org/getting-started/getting-started-docker
+   docker run -d -p 7080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:25.0.5 start-dev
+http://localhost:7080/ ,  admin , admin
+ like Keycloak realm is a boundary where you want to create set of client credentials or user credentials.
+  like an environment. keycloak is going to provide a realm with the name master, but if needed, you can create more realms like dev, qa, prod.
+So based upon your requirements because the end users are the clients, they are not going to use the same credentials across various environments.
+login > create client > OpenID Connect,
+client ID? So this is like username of my client application. ,Client authentication on we want our client to be authenticated itself with the auth server by providing its own credentials.
+disable Standard flow (redirection url), Direct access grants (share creds) , enable Service accounts roles
+for clien credentials, next> save
+click on Credentials> view client secret,
+my client application should know what is the endpoint URL that it has to invoke to get an access token.
+go to realm setting , > go to endponts> OpenID Endpoint Configuration > click on link > and search token_endpoint
+http://localhost:7080/realms/master/protocol/openid-connect/token grant_type is client_credentials,
+fill client id, client secret, scope: openid email profile ,So these are the three scopes that my client application want the auth server to consider while issuing an access token.
+in body select body.x-www-form-urlencoded
+go to keycloack , click on clien> select client>  click client scopes> see default scopes
+since we are following the OpenID Connect, you can see here the OpenID Connect is mentioned, which means by default, the OpenID scope will be provided for all the clients.
+you get id_token  , becuase you mentioned openid in scope
+go to jwt.io, and paste it in encoded section, iss: issuer, now paste the id token
+
+in order to convert my gateway server as an OAuth2 resource server, I need to use this dependency which is spring-security-oauth2-resource-server.
+And since we are using JWT related tokens, we need to make sure we are adding these spring security oauth2-jose dependency
+
+
+
+
+
+
+
+
+
+

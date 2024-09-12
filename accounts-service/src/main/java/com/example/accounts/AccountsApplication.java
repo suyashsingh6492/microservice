@@ -6,18 +6,21 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.temporal.TemporalAdjusters;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl") //update createdby , updatedBy
 @OpenAPIDefinition //provide the definition details with the help of open API
         (
                 info = @Info(title = "Account microservice " //short summary about your REST APIs.
-                        ,description = "Account Microservice documentation ",
+                        , description = "Account Microservice documentation ",
                         version = "v1",
                         contact = @Contact(
                                 name = "suyash",
@@ -30,16 +33,26 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
                 ),
                 externalDocs = @ExternalDocumentation(
-                        description =  "Accounts microservice REST API Documentation",
+                        description = "Accounts microservice REST API Documentation",
                         url = "http://localhost:8085/swagger-ui/index.html"
                 )
         )
 @EnableConfigurationProperties(value = {AccountsContactInfoDto.class})
 @EnableFeignClients
 public class AccountsApplication {
-//http://localhost:8085/swagger-ui/index.html
+    //http://localhost:8085/swagger-ui/index.html
     public static void main(String[] args) {
-        SpringApplication.run(AccountsApplication.class, args);
+        //  SpringApplication.run(AccountsApplication.class, args);
+
+        OffsetDateTime endDate = OffsetDateTime
+                .now()
+                .with(LocalTime.of(0, 0, 0))
+                .with(TemporalAdjusters.firstDayOfMonth());
+        OffsetDateTime startDate = endDate.minusMonths(1)
+                .with(TemporalAdjusters.firstDayOfMonth());
+        System.out.println(startDate);
+        System.out.println(endDate);
+
     }
 
 }

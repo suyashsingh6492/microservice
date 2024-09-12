@@ -109,12 +109,21 @@ put common detail for all service in one place and use extends.service key word
 
 do docker build after gradle build to all the microservices
 after gradle build
- accounts-service % docker build . -t suyashs52/accounts-service:v1
-cards-service %         docker build . -t suyashs52/card-service:v1
-loan-service % docker build . -t suyashs52/loan-service:v1
-config-server % docker build . -t suyashs52/configserver:v1
-eureka-server % docker build . -t suyashs52/eureka-server:v1
-gateway-server % docker build . -t suyashs52/gateway-server:v1
+from bank-service
+cd  accounts-service
+docker build . -t suyashs52/accounts-service:v1
+cd ../cards-service
+docker build . -t suyashs52/card-service:v1
+cd ../loan-service
+docker build . -t suyashs52/loan-service:v1
+cd ../config-server
+docker build . -t suyashs52/configserver:v1
+cd ../eureka-server
+docker build . -t suyashs52/eureka-server:v1
+cd ../gateway-server
+docker build . -t suyashs52/gateway-server:v1
+cd ..
+
 push all the images
  docker image push docker.io/suyashs52/accounts-service:v1
  docker image push docker.io/suyashs52/card-service:v1
