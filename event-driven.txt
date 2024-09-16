@@ -104,6 +104,46 @@ communication-sent: So this is the queue name where my accounts microservice is 
  output binding with the help of this output binding, the message is going to be always sent to this destination which is communication-send.
 
 
+Kafka is a distributed event streaming platform, whereas Rabbitmq is a message broker.
+This means Kafka is designed to handle large volumes of data, while Rabbitmq is designed to handle smaller volumes of data with more complex routing requirements.
+if you are looking for complex routing requirements inside your application, then you need to go with the Rabbitmq.
+Kafka is going to store all the data on the disk, whereas Rabbitmq is going to store the data inside memory.
+Kafka is highly scalable. Because whenever we are using Kafka, we can horizontally add any number of Kafka brokers to the Kafka cluster.
+
+producers, they will connect to an Kafka cluster and they are going to be continuously pushing the messages into the Kafka cluster.
+cluster?: It is a set of servers which are going to work together to produce a desired output.
+Inside a broker, we can have topics. A topic is very similar to exchange that we have inside the Rabbitmq.
+Inside the topics we are going to have multiple partitions.
+ I want to store the large amount of data with multiple brokers inside multiple brokers, I'm going to have a same topic but different partitions like P0, P1, P2,
+ t I want to send for the New York customers needs to be go to the partition zero. And similarly, all the customer communication details related to the Washington. It has to go to the other partition like P1.
+ whenever a message we are trying to store inside a partition, we are going to provide an offset id
+  this will give flexibility to the Apache Kafka and consumers to uniquely identify a particular message.
+  So in other words, these offset ID's are similar to sequence ID's that we have inside the database rows.
+  I can configure for the consumer1 to always process the messages available inside the partition0.
+  And similarly partition one messages can be processed by the consumer2.
+  Kafka is, it is going to replicate your data in multiple
+brokers. Like if you try to save a message into one of the broker, the same is also going to be replicated in one more broker, like broker2 or broker3.
+as soon as the message is received by my Kafka broker, the Kafka is going to assign your message to one of the partition.
+If the partition key is provided by the producer the same, it is going to be used by the Kafka broker and inside the same partition
+If no partition key is provided, then Kafka uses various approaches like Round Robin or hashing algorithm
+if you have enabled the replication, the message replication will be done by the Kafka broker.
+when your message is stored inside a broker very first time it is going to
+be the leader replica. Once the leader replica is completed, the other replicas Kafka broker is going to do behind the scenes.
+consumer inside a consumer group, they need to subscribe to one of the topic available inside the Kafka broker.
+my Kafka is going to assign the partitions of the subscribed topics to the consumers available within the consumer group.
+That means the consumer should maintain its offset details for each partition it is trying to consume.
+Initially, the offset number is going to be the null because my consumer never consumed any messages
+ consumer can read multiple messages at a time, like my consumer can try to fetch 100 messages at a time inside each fetch request.
+ After message processing, my consumer has to commit the offset number to the broker, saying that I have processed the messages up to this offset number.
+
+We can also validate the same if the required topics are created inside the Apache Kafka or not by using a plugin available inside the IntelliJ idea.
+The plugin is Kafkalytic. click plugin> add> localhost:9092, test connection
+see that topics information which is communication-sent and send-communication based upon the destination details that we have defined inside the application.yml file.
+
+bitnami : Bitnami is a kind of marketplace where they are going to help you to set up any kind of application
+in any kind of environment like Cloud, Docker, Kubernetes.
+
+
 
 
 

@@ -1,0 +1,93 @@
+orchestration:  Based upon the instructions given by these person, the musicians will accordingly play the music whenever needed.
+ you may have more than 100 different containers running inside your production server.
+ we need a component which can control our containers based upon the requirements that we have.
+ When you try to do that deployment, bigger organizations, they cannot afford a downtime.
+ So in such scenarios they will go with an option of rollout.
+ Kubernetes is an open source container orchestration platform that is capable of automating the deployments,
+ rollouts, scaling and managing all your containerized applications.
+  Kubernetes is also capable of to act as a service discovery agent and provide load balancing.
+
+  Inside cluster will have set of servers or virtual machines which are going to work together to deliver a desired output to the end user.
+   usually a Kubernetes cluster will have multiple nodes.
+   The very first one is Master Node, which is responsible to controlling and maintaining your entire Kubernetes cluster.
+   we also have worker nodes inside Kubernetes cluster.  to handle the traffic that we get towards our microservices.
+
+   Inside your master node, Kube API server. is going to expose some APIs using which anyone from outside Kubernetes cluster
+   they can interact with the master node and using the same API server only the master nodes and worker nodes they are going to communicate with each other.
+   using admin UI of the Kubernetes. The other option is by using the kubectI CLI.
+   from your CLI terminal you can execute some kubectl commands and these commands will be input to the Kube API server.
+   So with the help of Yaml configurations you can always provide some instructions to your Kubernetes
+   cluster saying that I want so-and-so microservice to be deployed with so and so replicas with so and so docker image.
+   nce my Kube API server receives instructions through kubectl CLI or admin UI, it is going to read the instructions.
+    based upon the instructions that it understand it is going to give those instructions to the scheduler.
+     based upon the requirements it is going to identify under which    worker node it has to do a deployment.
+
+  Suppose if my end user gave an instructions to the master node saying that I want to deploy my accounts to microservice.
+  the kube API server will give these instructions to the scheduler.  Scheduler is a component that is responsible to identify under which worker node the deployment of accounts microservice has to be done.
+
+  it is going to give the same instructions back to the Kube API server and from Kube API server it will reach to the corresponding worker node about the deployment of the accounts microservice.
+   it is the responsibility of the controller manager to always track the containers and worker nodes available inside the cluster.
+Inside my Kubernetes cluster, I always want to make sure I have three instances of accounts microservice running always
+So my controller manager regularly keep health check of these three running instances of accounts
+ Etcd.: etcd as a brain of our Kubernetes cluster.  etcd is going to act as a database
+ all the information related to your Kubernetes cluster is going to stored as a key value pair.
+
+ inside worker node also we have very good number of components.
+ Kubelet.: Kubelet is an agent running inside all your worker nodes using these Kubelet Only my master node is
+           going to connect with the worker node and it is going to provide the instructions with the help of kube API server.
+ container runtime.: Since we are going to deploy all our microservices in the form of containers,
+    we need to make sure there is some container runtime installed inside the worker node.
+    Most of the times the container runtime is going to be Docker
+    So when you try to set up Kubernetes cluster, all your worker nodes, they are going to have that Docker server installed inside them.
+
+ pod; behind that container runtime, you can see we have Pod. Pod is a smallest deployment unit inside the Kubernetes like worker node is going to be a jumbo server
+ or a jumbo virtual machine. cannot deploy our containers directly into the worker nodes.
+ the Kubernetes is going to create a pod inside a worker node. And inside this pod only the actual containers of the microservices are going to be deployed.
+  if you are trying to deploy multiple microservices into your same worker node to provide that isolation from other microservices, we are going to have a concept of pods.
+  Usually most of the times a pod will have a single container.
+  sometimes you may deploy multiple containers inside a pod some helper container or it may need some utility container to perform its job.
+  So such helper containers we can deploy inside the same pod where we have the main container.
+  kind of deploying a helper container along with the main container inside a pod is called sidecar pattern.
+
+  Kube Proxy.: to expose your container to the outside world or to the other containers inside the same cluster,
+  If you have large number of worker nodes, then obviously we need more number of master nodes. A single master node cannot handle any number of worker nodes
+  so the other name for the master node is Control Plane.
+
+  to set up a local Kubernetes cluster, With the help of Minikube installation, we can set up a small Kubernetes cluster inside local system.
+   few of the commands that we give for the Minikube will be different compared to the actual commands that we give to the Kubernetes cluster inside prod env
+   Instead, I'm going to deploy a local Kubernetes cluster with the help of Docker desktop.
+   docker > setting> kubernatives> enable kubernative ,it is going to create a single node cluster s
+   A same single node is going to act as a both master node and worker node.
+   we need to make sure Kubectl is set up inside our local system. it is one of the approach to interact with the Kubernetes cluster.
+ kubectl is a command every time we need to use whenever we want to use some instructions to the Kubernetes clusters
+   kubectl config get-contexts  get what are the list of contexts available inside my local system.
+   So context is a kind of isolated environment using which my client application or my CLI can interact with the Kubernetes cluster.
+   you can see by default there is a context created with the name Docker desktop.
+kubectl config get-clusters ,list of Kubernetes clusters that are running inside your local system
+ kubectl get nodes , no of nodes ,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
