@@ -227,6 +227,14 @@ before clicking on get new access token , close the browser, and logout from key
 now after click login screen appear enter creds suyashs52@gmail.com 12345, it will redirect to
 https://oauth.pstmn.io/v1/callback?
 allow popup , click ok, go back to postman, authenticated, but 403 because no role assigned
+in account service , in docker compose deleted the port mapping inside my docker compose file,
+my account service is not going to be exposed to the outside world. same do for loans, cards,
+gateway server. e I have created a new environment variable which is spring security Oauth2 Resource server JWT, JWK-SET-URI.
+in gateway The service name is keycloak. And the port name, here I'm using 8080 but not the 7080.
+7080 is the port which is exposed to the outside world.
+Whereas since my gateway server is going to interact with the keycloak inside the Docker network directly
+with the help of this service name, we need to mention what is the port number where the keycloak server started inside the Docker network.
+
 
 
 

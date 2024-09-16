@@ -1,4 +1,32 @@
 services:
+  rabbit:
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.5
+    container_name: keycloak
+    ports:
+      - "7080:8080"
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+    command: "start-dev"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
   #  accountsdb:
   #    container_name: accountsdb
   #    ports:
@@ -11,8 +39,8 @@ services:
   accounts:
     image: "suyashs52/accounts-service:v1"
     container_name: accounts-ms
-    ports:
-      - "8085:8085"
+#    ports:
+#      - "8085:8085"
     healthcheck:
       test: "curl --fail --silent localhost:8085/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -26,9 +54,12 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+      rabbit:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "accounts"
       OTEL_SERVICE_NAME: "accounts"
+      SPRING_RABBITMQ_HOST: "rabbit"
     #      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
     extends:
       file: common-config.yml
@@ -37,8 +68,8 @@ services:
   loans:
     image: "suyashs52/loan-service:v1"
     container_name: loans-ms
-    ports:
-      - "8090:8090"
+#    ports:
+#      - "8090:8090"
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -72,8 +103,8 @@ services:
   cards:
     image: "suyashs52/card-service:v1"
     container_name: cards-ms
-    ports:
-      - "9000:9000"
+#    ports:
+#      - "9000:9000"
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -89,7 +120,17 @@ services:
     extends:
       file: common-config.yml
       service: microservice-eureka-config
-
+  message:
+    image: "suyashs52/message:v1"
+    container_name: message-ms
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
   gateway-server:
     image: "suyashs52/gateway-server:v1"
     container_name: gateway-server-ms
@@ -107,6 +148,7 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "gateway-server"
       OTEL_SERVICE_NAME: "gateway-server"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
     #      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
 #      SPRING_DATA_REDIS_HOST: redis
 #      SPRING_DATA_REDIS_PORT: 6379
@@ -116,7 +158,7 @@ services:
       service: microservice-eureka-config
 
   config-server:
-    image: "suyashs52/configserver:v1"
+    image: "suyashs52/configserver:v2"
     container_name: configserver-ms
     ports:
       - "8071:8071"

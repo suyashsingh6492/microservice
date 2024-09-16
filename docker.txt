@@ -123,7 +123,9 @@ docker build . -t suyashs52/eureka-server:v1
 cd ../gateway-server
 docker build . -t suyashs52/gateway-server:v1
 cd ..
-
+cd message
+gradle jib
+cd ..
 push all the images
  docker image push docker.io/suyashs52/accounts-service:v1
  docker image push docker.io/suyashs52/card-service:v1

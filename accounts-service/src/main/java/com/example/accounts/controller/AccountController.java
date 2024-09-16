@@ -27,8 +27,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-;import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+
+;
 
 @Tag(
         name = "CRUD REST APIs for Accounts ",
@@ -38,6 +39,8 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated //perform validations on all the REST APIs that I have defined inside these AccountsController.
 public class AccountController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     @Autowired
     private IAccountsService iAccountsService;
@@ -192,12 +195,10 @@ public class AccountController {
                 .body(accountsContactInfoDto);
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
-
 
     @Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
     @GetMapping("/build-info")
-    public ResponseEntity<String> getBuildInfo() throws  TimeoutException {
+    public ResponseEntity<String> getBuildInfo() throws TimeoutException {
         logger.debug("getBuildInfo() method Invoked");
         throw new TimeoutException("error!!");
 //
@@ -212,8 +213,6 @@ public class AccountController {
                 .status(HttpStatus.OK)
                 .body("0.9");
     }
-
-
 
 
     @Operation(
@@ -234,13 +233,14 @@ public class AccountController {
             )
     }
     )
-    @RateLimiter(name= "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
+    @RateLimiter(name = "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
     @GetMapping("/java-version")
     public ResponseEntity<String> getJavaVersion() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(environment.getProperty("JAVA_HOME"));
     }
+
     public ResponseEntity<String> getJavaVersionFallback(Throwable throwable) {
         return ResponseEntity
                 .status(HttpStatus.OK)

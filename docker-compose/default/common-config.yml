@@ -12,9 +12,9 @@ services:
   #    environment:
   #      SPRING_RABBITMQ_HOST: "rabbit"
     environment:
-      JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-1.33.5.jar"
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
-      OTEL_METRICS_EXPORTER: none
+#      JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-1.33.5.jar"
+#      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+#      OTEL_METRICS_EXPORTER: none
   microservice-db-config:
     extends:
       service: network-deploy-service

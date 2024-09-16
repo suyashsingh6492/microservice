@@ -1,0 +1,114 @@
+can we avoid temporal coupling whenever possible
+loose coupling : we will try to build our application's business logic in a separate microservices,We achieved loose coupling.
+Temporal coupling occurs whenever a caller service expects an immediate response from a calling service before continuing its processing.
+The microservice1 is dependent on the microservice2. any slow behavior of microservice2 is going to have an impact on the microservice1.
+That's why wherever possible, we need to avoid temporal coupling between our microservices.
+And this temporal coupling happens whenever we try to use synchronous communication between the services.
+to avoid the temporal coupling, we need to use asynchronous communication
+ Whereas in the reactive approach there won't be any threads blocked on the microservice1 to wait for the response from the microservice2.
+ After the invocation the thread will go back to the thread pool and it will try to pick up the next request that are coming towards the microservice.
+ So how to build these asynchronous communication between the microservices? event driven approach
+ publisher subscriber model. once an event is received and consumed by the consumers, it cannot be replayed again and again,
+ event streaming model:  producers will be produce the events and the consumers will consume the events.
+ event streaming model events will be written into a log in a sequential manner.
+ Producers publish the events as they occur and these events are stored in a well ordered fashion.
+ Now coming to the consumers instead of subscribing to the events, the consumers, they will have the ability to read from any part of the event stream,
+ If your business scenario is not expecting your consumers to read the past events, then pub pubsub is a ideal model.
+  the pub/sub model is frequently implemented with the Rabbitmq. Apache Kafka is a robust platform widely utilized for event streaming processing.
+  create accounts and send message,
+
+  Rabbitmq is an open source message broker, rabbitmq it is going to follow the Amqp protocol.
+  AMQP, Advanced Message Queuing Protocol and this Rabbitmq offers flexible asynchronous messaging
+  we cannot replay the events or messages whenever we use message broker like Rabbitmq.
+  But in the recent versions of Rabbitmq, event streaming capabilities are also provided with Rabbitmq
+  The middleware that receives messages from producers and directs them to the appropriate consumers.
+  We call that middleware component as message broker The message broker can handle any number of producers and consumers.
+  The messaging model of AMQP operates on two principles. One is exchanges and queues.
+  Producer will always send the message to an exchange inside your message broker. This exchange is going to identify to which queue it has to send the message details. I
+  broker you may have any number of exchanges and queues, and to these queues the consumers are going to subscribe
+  For example, the producer can send a message to the exchange and based upon the exchange details, the message can go to the Queue1 or Queue2.
+  If the message goes to the Queue1, then consumer one will be notified about this message as soon as it
+  reads, the message will be deleted from the queue and there is no rule that only one consumer has to be subscribed to a single queue.
+
+  spring cloud function, facilitate that development of business logic by utilizing functions.
+  A supplier is a function or a lambda expression that produces an output without requiring any input.
+  whenever you write your business logic using supplier functional interface, then your business logic is never going to expect any input.
+
+  we also have Function. This Function accepts inputs and generate an output. It is commonly referred as a processor because it is taking an input and it is going to process the
+  A Consumer is a function or a lambda expression that always consumes an input but does not produce any output.
+  It can be called as a subscriber or sink.
+  . By default, all your logic that you are going to write inside your functions will be exposed as an REST API automatically
+  you can also stream data from these functions by integrating them with Apache Kafka Rabbitmq by using Spring Cloud stream framework.
+   spring cloud function website.
+   how to deploy your business logic with the help of spring cloud
+   functions inside the serverless environments like AWS lambda, Microsoft Azure function, Google Cloud functions.
+   add cloud function dependency in start.spring.io org.springframework.cloud:spring-cloud-function-context
+   It is going to promote the implementation of business logic via functions and supports a uniform programming
+   model across serverless providers as well as ability to run standalone, locally or in a pass.
+   uniform programming model? It is the business logic that you are going to write with the help of functions.
+   So the same business logic you can deploy across various serverless providers or you can also use it as a standalone application.
+function accepts two parameters. The first one, which is T is an input and R indicates the output.
+org.springframework.cloud:spring-cloud-starter-function-web will convert this function to rest api
+ we need to compose our functions in order to compose our functions as a single logical unit.
+ t to give flexibility to my clients to invoke a REST API, and these REST API is going to invoke both of these two functions as a single logical unit.
+add definition: email|sms in yml file (email is funciton name) with this pipe symbol, I'm trying to compose both these two functions into a single logical unit.
+not post the api http://localhost:9010/emailsms , both wil be hit
+So to integrate your functions with the Rabbitmq or any other event streaming model, you need to use spring cloud stream as well.
+if you want to integrate your functions with the event brokers like Rabbitmq or Apache Kafka
+in all such scenarios, we need to use this Spring Cloud Stream project.
+Spring Cloud Stream is a framework designed for creating scalable event driven and streaming applications.
+By using these project, we can convert our messaging microservice as an event driven or streaming appl
+Spring Cloud Stream is going to act as an abstraction layer and provide a consistent
+experience to developers, regardless of which middleware that you are using behind the scenes.
+magic of spring cloud stream, it is going to achieve with the help of three important components.
+destination binders: This is the component which is responsible to provide the actual integration with the external messaging system
+ destination bindings.: destination binders behind the scenes, it is also going to create channels or destination bindings which are going to act as a bridge
+ between the external messaging system and the application code written by the developer.
+ Message.: Using this component only we can define the data structure that can be used by the producers and consumers to communicate with each other.
+ So with the help of destination binding only the actual integration between your application code and the messaging systems will happen.
+
+ the next dependency is spring cloud stream binder rabbit. This I need to add because I want to use Rabbitmq as my event broker or message broker.
+ we add the spring cloud stream dependency inside our project internally, it is also going to add spring cloud function related dependencies.
+to generate docker image use : gradle jib
+ Spring cloud stream bindings, they are going to establish a integration between the message broker with your functions.
+
+So with the binding name, my spring cloud stream is going to have my function details like email and sms,
+destination: we need to give a random name, which is send a communication. With this inside my rabbitmq there has to be a queue with the name send communication.
+group property is, if I don't mention this group property, then my rabbitmq is going to append some randomly generated value to my destination names to my channel names and queue names.
+update the accounts microservice to send the messages and push them into the rabbitmq
+so add dependency in accounts microservice
+That's why we need to go -out followed by hyphen and zero.
+in account service
+For these binding, the destination is going to be the send-communication.
+So with this destination name my rabbitmq is going to bind my output destination binding to an exchange available inside the rabbitmq.
+The exchange name is going to be the send- communication.
+Whereas whenever we are using input binding like we did inside the accounts microservice, the destination is going to be the queue name.
+in create account method, sent message to So this is the destination binding that
+run rabbitmq https://www.rabbitmq.com/docs/download
+docker run  -d -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management
+start config server, eureka server, accounts service, message service , gateway server,keyclock server
+localhost:15672 , guest  guest,
+click on exchanges> you'll see 	send-communication
+click on  binding. Queue send-communication.message you'llsee
+go to postman> gatewayserver_security> http://localhost:8072/bank/accounts/api/create
+ output binding details : emailsms-out-0 , cloud function definition is mentioned here as a prefix.
+
+The business scenario that we have here is this function is responsible to take the message from the
+message microservice, which is of type long as soon as it receives, it needs to update the status value inside the database.
+Apart from that, it is not going to respond anything back to my message microservice
+is always going to accept the input, but it is not going to send any output. == consumer
+What if we have a requirement where you want to define multiple independent function definitions.
+    function:
+      definition: updateCommunication;updateCommunication2;updateCommunication3
+communication-sent: So this is the queue name where my accounts microservice is always going to look for an message after the destination.
+ output binding with the help of this output binding, the message is going to be always sent to this destination which is communication-send.
+
+
+
+
+
+
+
+
+
+
