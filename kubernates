@@ -66,6 +66,157 @@ So my controller manager regularly keep health check of these three running inst
 kubectl config get-clusters ,list of Kubernetes clusters that are running inside your local system
  kubectl get nodes , no of nodes ,
 
+how to set up Kubernetes Dashboard UI:
+https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+install helm first https://helm.sh/docs/intro/install/ , dashboard only with the help of helm.
+Helm is a package manager for Kubernetes. brew install helm ,  on terminal helm version if not update brew then do
+run the helm command to install kubernative ui,
+run command kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+https://localhost:8443/#/login
+go back to documnet : Accessing the Dashboard UI  creating a sample user. https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+service account is nothing but is a credential that you are trying to create for a particular user.
+namespace inside Kubernetes cluster? It is a kind of boundary or an isolated area inside your cluster. So just like how we have dev environment QA
+go inside k8s and run kubectl apply -f dashboard-adminuser.yaml
+create a cluster role binding. we need to provide privileges to this account with the help of this cluster role binding for the same.
+role cluster hyphen admin. So this is a predefined role inside the Kubernetes cluster.
+kubectl apply -f dashboard-rolebinding.yaml
+kubectl -n kubernetes-dashboard create token admin-user
+eyJhbGciOiJSUzI1NiIsImtpZCI6IjF5TFQ0bmpLaXAzaE0tZV9RbHhmTEM3cC1QSEw1QUpHTnhMZmRnVzE1QWcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzI2NTY4Nzk2LCJpYXQiOjE3MjY1NjUxOTYsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiZjg3YTU0NzctMDU4MC00NWM5LWJjOWUtNTI1MzljNWU4MDk0Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiM2I0MTljOWUtYTFiYy00NzM4LTg3OWMtODM0MjEyN2ViZjkzIn19LCJuYmYiOjE3MjY1NjUxOTYsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.BKkpuVhocyl_PD-BMFtd6Z1RzZcbCFHqKTPC7JU4IXihruOZhoHqCYayM3LLr566HZsL2K5RRZhu4TG2-bw0EzWgyTk0Bf_jy9TmApZLaKiLKJ9nnTqgxc9euS2e6EoauQqqDcGAIXXygrUUeveqajDZ9LPpSlx3aavb1w9iYKbzvHQJRjABwjd61NWCvRLTzOhYWleLpg2A7U1EIcQPJv4bKwAon12qbPp_1jHTKP1hVCbJR4YNrmWaFY3e4SjTCZeTQREsouOqQvp2JhbHmWvjFqiy5I2Ik9OGBLXOENLQ1AZFkxfLlnbJOgXI901LE2TIss9wKsO9O3-wfRknng
+mentioned this in website https://localhost:8443/#/workloads?namespace=default
+go to https://localhost:8443/#/workloads?namespace=kubernetes-dashboard
+go to service account: https://localhost:8443/#/serviceaccount?namespace=kubernetes-dashboard
+select admin-user> see
+now create secret token yaml file , kubectl apply -f secret.yaml
+eyJhbGciOiJSUzI1NiIsImtpZCI6IjF5TFQ0bmpLaXAzaE0tZV9RbHhmTEM3cC1QSEw1QUpHTnhMZmRnVzE1QWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzYjQxOWM5ZS1hMWJjLTQ3MzgtODc5Yy04MzQyMTI3ZWJmOTMiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.hv3wPCzYpokLjppsbxttEtcOhhC87AmQaAIqJJ7LJlY_fUhEArfJcQgU_JIVeXH2hUe31LsBCUOWFBGi2v1bu-fu03Fehpjpm9-g7TF24FvGPT8Jp5EqfF_cEVrCUulkcuylAgxdIDcFshXwOyEQIUr__m8ZwS5NzRuP_7FgvENsA-q1vPHf_AOwTdmBlyDTa7dDZG-Pamc4te95rP1o2wX4b3u2ZeKH-N03glf4k1hDuaQ7elFCKGYxafucK_pAyHvVT2EwYvsUZuDVk3Hzsg3aIf329toIlV0QfbnML4n_Mgt9nAc6zMP4yksAGweXOQmF6Yv2w868zU0LARhM6w
+this token is permanent , logout and login back
+Kubernetes has its own format.
+kind: Deployment  predefined object inside the Kubernetes. ,You can always get the syntax of these files from the Kubernetes official documentation.
+  name: config-server-deployment So we are trying to give a name to our deployment.
+  match labels, we need to mention whatever label we have mentioned here labels: app ,whatever specification that I'm trying
+to write here, I want them to be applicable for the deployment config server deployment, which has the same label,
+template how you want to deploy template:spec:       containers:  - name: config-server name of container
+ by default, whenever we don't mention the container registry information internally it is going to consider as docker.io by default.
+ So whenever we mention these three hyphens inside yaml file it indicates to the yaml please treat these single yaml file as a two separate Yaml file.
+my Kubernetes cluster is going to execute them one by one by seeing this special character which is three hyphens.
+in service: metadata:name using the same name only my other microservice inside the Kubernetes cluster, they are going to communicate with each other.
+  selector:
+    app: config-server take it from deployment metadaa name
+  container, port and target port are always same
+  port: 8071, this is the port which will be exposed to the outside worldWhereas whatever you have mentioned at the target port, this is the port where my container
+is going to start internally inside the Kubernetes network.
+In other words, people also call this Kubernetes configuration files as Kubernetes manifest files.
+
+go to kubernative in terminal , kubectl get deployments , this will show me all the deployments inside my Kubernetes cluster.
+kubectl get services , you can see there is one default service which is related to Kubernetes.
+kubectl get replicaset ,
+to deploy type kubectl apply -f config-server.yml , type kubectl get services ,you see : config-server   LoadBalancer   10.96.245.102   localhost     8071:31737/TCP   18s
+kubectl get pods, what is the pod name where you are. Micro service is deployed.
+go to default dashboard; https://localhost:8443/#/overview?namespace=default
+CLICK ON pods : https://localhost:8443/#/pod/default/config-server-deployment-54d5c7b74-mrlx5?namespace=default
+click on top 3 symbol, you will see logs,
+go to replica set : https://localhost:8443/#/replicaset/default/config-server-deployment-54d5c7b74?namespace=default
+scroll down to service: click on external endpoints ; http://localhost:8071/accounts/prod you will see its working
+how to create the same kind of environment variables inside the Kubernetes cluster
+we are going to create an object of configmap inside Kubernetes. Configmap is an object used to store Non-confidential data in a key value pairs parts and your containers they can consume config maps as an environment variables
+they can consume config maps as an environment variables or command line arguments or as an configuration files in a volume.
+ kubectl apply -f config-maps.yaml
+ in dashboard ui , select default profile, go to config maps> bank-config-map , in secrets it is base64 encrypted ,
+make sure           env:
+                    - name: KEYCLOAK_ADMIN
+align to same vertical ,
+ kubectl apply -f keycloak.yml
+ kubectl apply -f config-maps.yaml
+ kubectl apply -f config-server.yml
+ kubectl apply -f eureka-server.yml
+ kubectl apply -f accounts.yml
+ kubectl apply -f loans.yml
+ kubectl apply -f cards.yml
+  kubectl apply -f gateway.yml
+
+  navigate to http://localhost:8070/
+
+ self-healing capability of Kubernetes,: whenever Kubernetes is seeing that a specific container is not working properly or it is completely down, then immediately, Kubernetes will try to self heal the container by recreating a new container in the place of defective container.
+   kubectl get replicaset. We have mentioned the replicas as one, the same replica information we can try to see
+go to for accounts microservice , set replicas to 2, kubectl apply -f accounts.yaml. , will say unchanged, but replica increase to 2
+I'm going to delete the one of the pod of accounts microservice manually, kubectl delete pod <podname> , podname from kubectl get pods
+again 2 replicaset only ,  my Kubernetes always putting the efforts to match my desired state with the current state.
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+which is how to deploy your new changes into Kubernetes cluster:
+kubectl scale deployment accounts-deployment --replicas =1 ,  I execute this command, now I should be able to see only one part of my accounts service
+kubectl describe pod <gatewayservername>
+I'm going to deploy a new image into my gateway server. container name is : gateway-server
+kubectl set image deployment gateway-server-deployment gateway-server=suyashs52/gateway-server:v1 --record
+with --record With this record I'm telling to my Kubernetes cluster to record the reason on why we are deploying a new image.
+to create the container and eventually it start. And in the same process it also killed the old pod all the containers inside the old pod.
+kubectl rollout histroy deployment ,  will show you the rollout history that happened for the deployment with the name gateway server - deployment.
+kubectl rollout histroy deployment gateway-server-deployment ,
+kubectl rollout undo deployment   gateway-server-deployment  --to-revision=1 , to which revision I want to rollback.
+think like if you have 100 instances of gateway server running inside your Kubernetes cluster, all the rollback are rolling out of the new changes is going to take care by your Kubernetes cluster automatically.
+
+So we should only make our gateway server as a load balancer and all the remaining microservices, we should not use the LoadBalancer.
+ three mostly are majorly used service types cluster IP, nodeport and load balancer.
+  cluster IP service type: then this is that default service that Kubernetes is going to consider.
+  Kubernetes cluster is going to create an internal IP address that can be used for the internal communication within the Kubernetes cluster.
+  we don't want to expose our microservice to the outside world or to the outside of the Kubernetes cluster, then we should use the cluster IP service.
+  Kubernetes cluster is going to create an internal IP address that can be used for the internal communication within the Kubernetes cluster.
+whenever we mention the target port as 8080, that means my accounts microservice is going to start
+at the port 8080 inside my accounts related pod but it is going to be exposed to the other clients inside the Kubernetes cluster at the Port 80.
+I have two pods of accounts because I have mentioned the replicas as two. Usually these pods will be deployed in two different worker nodes.
+But if you see here, whoever want to communicate with my accounts microservice, they should use the ClusterIP that is generated by the Kubernetes cluster or they can use the service name that we have mentioned inside the service Kubernetes manifest file
+some other application inside your Kubernetes cluster is trying to send the internal traffic at Port 80 using ClusterIP or using service name.
+ the Kubernetes is going to do the load balancing behind the scenes it will decide to which pod the request has to send.
+
+ NodePort service.: behind the scenes, the Kubernetes is going to automatically expose your container at a randomly generated NodePort, which is in the range of 30,000 to 32,767.
+ Here inside the service manifest file, I have mentioned the node port as 32593.
+ So this NodePort service will be exposed on top of the ClusterIP service.
+ my Kubernetes cluster is going to accept  the external traffic at the NodePort value that we have defined, which is 32593.
+ my external client applications, they should know what is the IP addresses of worker node one or worker Node two.
+ One of the worker node has some issues, then Kubernetes automatically can kill that worker node.
+ And in the place of that worker node, it is going to bring a new worker node. That means it is going to get a new IP address.
+  LoadBalancer: So this is very similar to NodePort, but on top of the NodePorts that we have exposed, the Kubernetes is going to provide you a load balancer.
+  LoadBalancer service has an advantage, which is it is going to provide a LoadBalancer,
+  which is always going to have a public IP address which you can map to your domain name regardless of how many worker nodes you are trying to create
+  kubectl get services ,But since right now we have the cluster inside a local system, we have the external IP as localhost.
+
+  we define the LoadBalancer as a type, my Kubernetes
+  is going to create a LoadBalancer with an external IP like localhost, and we can access that service
+  at the port 8080 and behind the scenes it is going to listen at the node port, which is randomly generated  in my case 30175.
+   From this node port the request will go to the cluster IP from the cluster IP, it will go to the actual microservice container.
+
+So there are eight different Kubernetes manifest files which will help us to create the config map to deploy our microservices, to expose our microservices.
+Like inside Dev, you may want to have only one replica of accounts microservice and other microservices, whereas in QA you want to have three replicas and inside prod you may want to deploy five replicas,
+So in such scenarios you need to maintain your Kubernetes manifest files according to your different different environments that you may have.
+So this will delete my deployment and services of gateway server.
+kubectl apply -f gateway.yml
+kubectl delete -f cards.yml
+ kubectl delete -f loans.yml
+ kubectl delete -f accounts.yml
+ kubectl delete -f eureka-server.yml
+ kubectl delete -f config-server.yml
+ kubectl delete -f config-maps.yaml
+ kubectl delete -f keycloak.yml
+if you are having hundreds of microservice, then you need to run this command 100 different times,
+The solution is Helm. So Helm is a package manager
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
