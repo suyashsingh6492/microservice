@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: suyashs52/message
-  tag: v1
+  tag: s1
 
 containerPort: 9010
 

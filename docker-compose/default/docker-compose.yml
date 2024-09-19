@@ -142,7 +142,7 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
   message:
-    image: "suyashs52/message:v1"
+    image: "suyashs52/message:s1"
     container_name: message-ms
     depends_on:
       rabbit:
