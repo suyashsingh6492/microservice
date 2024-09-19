@@ -1,0 +1,68 @@
+helm is going to follow a packaging format called Charts. Inside Helm, a chart is a collection of files that describes a related set of Kubernetes resources.
+if you have 50 microservices, you can club all these 50 microservices related manifest files into a single component called Chart Inside Helm.
+helm charts is, a chart can have a child charts or dependent charts as well,
+Helm is a package manager for Kubernetes.
+Package manager is a component that can help you in installing or uninstalling or upgrading your software packages. Just like how we have helm for Kubernetes,
+like npm, pip,
+we are going to create a single template.yaml file for the Service object regardless of how many microservices you have inside your cluster,
+at some places it is trying to accept the dynamic values. whatever you mention inside this double curly braces is going to represent a dynamic value
+Helm is going to support, release or version management as well, which means whenever needed, you can roll back your entire Kubernetes cluster to the previous working state with a single command.
+https://helm.sh/docs/intro/install/
+help ls , if empty  this is going to list all the religions or all the installations that we have done into the Kubernetes cluster with the help of Helm.
+Helm is going to look for Kubernetes cluster connection details inside your local system. it is going to make an entry inside your system.
+go to suyashkumarsingh (user) > hidden folder .kube > config> open file , you'll be able to see all the connection details that my kubectl right now is using to connect to my Kubernetes cluster.
+click on using helm > helm search >
+https://helm.sh/docs/intro/using_helm/
+helm search hub wordpress  , we need to search if there are any WordPress related charts available inside the public repositories
+above command will search for all WordPress charts on the artifact hub.
+helm install happy-panda bitnami/wordpress , install wordpress , under the Bitnami repo.
+Bitnami is a famous repository which maintains production ready helm charts     ,we need to make sure we have added the Bitnami repo details inside our local system.
+first add into local repo like == helm repo add brigade https://brigadecore.github.io/charts
+so to add bitnami : helm repo add bitnami https://charts.bitnami.com/bitnami.
+ try to create your own helm chart or you try to use the third party helm chart, it is going to follow the predefined structure.
+ chart.yaml.: chart.yaml file is going to have meta information about the helm chart.
+ values.yaml: we need to maintain all the dynamic values that we want to inject at runtime into the template files
+  sub folder is charts: will have other helm charts which my current chart is dependent on
+  templates: maintain all the required Kubernetes manifest template Yaml files so into this template
+helm ls > list of installations that we have done with the help of Helm.
+help uninstall <name>
+to create helm chart go to helms folder and type: helm create bank-common  ,to build a helm chart that is going to be act as a common chart for all my microservices.
+delete all files inside templates folder, remove content of values.yaml ,
+create 3 file inside templates, service.yaml: this is a helm template but not a Kubernetes manifest file
+So first I'm trying to define a name for this entire template. using  define ,
+whatever hyphens that you see at the starting and at the end, those are helpful to trim any space that you may have before and after of your statement.
+we should also close that by using this end statement.
+under the metadata name, I need to inject a dynamic value.  whoever is going to use this template Yaml file, they need to provide a service name inside their values.yaml.
+So values is a helm framework object. So inside that values object keys and values that you have defined inside your values.yaml will be available and to access them.
+And similarly, under the specification selector app we are using a key which is app label inside the Values object
+in deployment.yaml file
+Now, after defining all the container related properties, we should also try to inject environment variables that are required for my particular microservice.
+inside helm we can write the if tag by using this if .values. app name enabled.
+So if this boolean value has true, then this entire environment variable is going to be injected into the particular microservice deployment yaml file.
+maybe there might be some microservice where I don't have to pass the property, which is spring application name.
+So the key inside the config map is going to be the spring profiles active only.
+So based upon this key inside the config map, my helm is going to look up for the value. The same is going to be assigned to this environment variable which is spring profiles active.
+in configmap.yaml:
+So I'm going to follow a standard like wherever I mentioned a prefix value as global. So that property name is going to be common for all microservices inside my microservice network.
+So whoever is going to leverage this common helm chart, they are going to provide their own values.yaml
+bank-services % helm create accounts  , delete all templates content  , delete valus.yaml content , go to chart.yaml
+change version to 1.0.0, add dependency key please mention the version of helm chart of bank-common.
+past the file in templates folder , I'm just trying to refer other template that I have defined with the name common.deployment.
+ we have defined this template inside the bank-common helm chart? I'm simply trying to refer to the template available inside the other helm chart,
+ Please make sure this dot is also present because this is a syntax that we need to follow. now check values.yml file
+ these values.yaml like you can see first I'm trying to mention a key with the name deployment name.
+ the service type here I'm mentioning the cluster IP because I don't want to expose my accounts microservice to the outside world.
+  resource server enabled as false.
+ The reason is inside my microservices only Gateway server is going to act as a resource server accounts  microservice is not an resource server.
+ chart folder is empty now it is empty because we have not compiled our helm chart as of now.
+ go inside accounts and type: helm dependencies build , compile successful ,
+ copy account and paste as card and loans and others too
+
+
+
+
+
+
+
+
+

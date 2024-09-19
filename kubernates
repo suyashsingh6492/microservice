@@ -188,7 +188,7 @@ So there are eight different Kubernetes manifest files which will help us to cre
 Like inside Dev, you may want to have only one replica of accounts microservice and other microservices, whereas in QA you want to have three replicas and inside prod you may want to deploy five replicas,
 So in such scenarios you need to maintain your Kubernetes manifest files according to your different different environments that you may have.
 So this will delete my deployment and services of gateway server.
-kubectl apply -f gateway.yml
+kubectl delete -f gateway.yml
 kubectl delete -f cards.yml
  kubectl delete -f loans.yml
  kubectl delete -f accounts.yml
