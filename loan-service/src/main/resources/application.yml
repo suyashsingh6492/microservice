@@ -5,6 +5,10 @@ server:
 spring:
   application:
     name: "loans"
+  cloud:
+    kubernetes:
+      discovery:
+        all-namespaces: true
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -20,14 +24,14 @@ spring:
     show-sql: true
 
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka/
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetchRegistry: true
+#    registerWithEureka: true
+#    serviceUrl:
+#      defaultZone: http://localhost:8070/eureka/
 management:
   endpoints:
     web:

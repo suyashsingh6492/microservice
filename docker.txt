@@ -1,3 +1,5 @@
+IntelliJ ultimate 6 month free : LANZC-DCWF7-Q3MR4-UE5J6-WSECJ
+codeium.com , install plugin codeium ,
 whenever we try to install Docker inside any system, we get Docker client and Docker server.  Docker client there are two different components
 Using this command line interface, we can issue commands to the Docker server directly from your terminal
 you can also issue commands to the Docker server using APIs using this Docker remote API,

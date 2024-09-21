@@ -296,7 +296,209 @@ we can try to render the all the Kubernetes manifest files that your helm is goi
 
 
 
+where my accounts microservice is trying to ask Eureka Server like please give me the details of the loan service as a response to
+the step two inside the step three, my Eureka server is going to give you all the IP address or the instance details of the loans microservice
+my Eureka server has given two IP address details where my loans microservice is available.
+my accounts microservice is going to have a problem,  The problem is it has to decide which instance, it has to forward the request.
+it is going to do the load balancing with the help of spring cloud load balancer and after
+the process of load balancing, it is going to choose one of the instance details and to the same the request is going to be sent in the step four.
+ accounts microservice is itself is responsible for the load balancing. That's why we call this approach as client side load balancing and client side service discovery.
+ The disadvantage is the developers they have to manually maintain the Eureka server
+ They have to convert that as an Eureka server post that they should also make changes in all the microservices to connect with the Eureka Server
+ can be avoided if we follow the server side service discovery and server side load balancing.
+  you are not going to have any control on the load balancing.  you don't have to make any changes inside your microservices.
+
+  We can follow the server side service discovery and load balancing only if we are using Kubernetes cluster
+  Inside this approach, there will be a service discovery inside your Kubernetes cluster, which is responsible
+  to monitor all the application instances and maintaining the details of them.
+  the Discovery server itself uses the Kubernetes APIs to fetch details about the Kubernetes services and endpoints of all the microservices.
+  So my Kubernetes Discovery server is going to query Kubernetes API to fetch all the details of the loans microservice instances.
+  the only disadvantage with this approach is, the clients application are the developers will not have any control on the load balancing.
+  We as a developers are the client microservice. We can simply forward the request to the service URL and the load balancing strategy or algorithm is completely decided by the Kubernetes cluster,
+
+  search for spring cloud kubernates
+  https://docs.spring.io/spring-cloud-kubernetes/reference/spring-cloud-kubernetes-discoveryserver.html
+
+So whenever you define kind as list inside your Kubernetes manifest file, you can create any number of Kubernetes objects
+the port that it is going to expose to the other microservices is 80, whereas it is going to start internally at the port 8761..
+And the service type is ClusterIP.
+So with the help of this role binding, we are going to bind a role to the service account.
+But here, under the resources, they only give access to the service and endpoints.
+So basically this Spring Cloud Kubernetes team, they built a spring boot application which is going to act as a discovery server inside your Kubernetes cluster.
+So for these initial delay seconds, I have passed a value which is 100,  my Kubernetes is going to wait for the 100 seconds before it tries to perform the readiness probe very first time.
+With the help of period seconds, we are telling to the Kubernetes cluster, please validate the readiness probe every 30s like initially it will try to perform the initial readiness probe after 100 seconds
+There are two reasons on why I'm not using helm chat here. The very first one is Discovery Server is a one time setup inside your Kubernetes cluster.
+With that reason, manually running these manifest files should be fine because this is only one time activity.
+the second reason is as of now there is no helm chat developed by the helm chat community, including Bitnami for these discovery server.
+cd kubernete > kubectl apply -f kubernetes-discoveryserver.yml
+
+As a next step, we need to make some code changes inside our microservices to remove the Eureka related
+changes on top of that, we should also make some changes inside our microservices to leverage the discovery server exposed by the Kubernetes.
+use spring-cloud-starter-kubernetes-discoveryclient instead of spring-cloud-starter-netflix-eureka-client ,
+As soon as I try to do a build, I'm getting an error inside my CustomerController.
+Seems whenever I deleted the Eureka client related dependency, it is internally is also going to delete the interrelated dependencies.
+add EnableDiscoveryClient in main class,in yml file comment out eureka configuration ,
+property which is spring.cloud.kubernetes.discovery.all-namespaces as true.
+, to make sure that our application is able to discover the services present inside other namespaces as well
+
+Now as a next step, let me go to the location where we are using feign client to connect with the other microservices inside my accounts microservice.
+CardFeignClient ,
+Using the same application name my accounts microservice can fetch the details of all the instances
+But in the scenario of Discovery server, we are not providing any integration details between our accounts, microservice and Discovery Server.
+that's why my feign clients cannot really understand what is the service name or the host name or the dns name or the port number where it has to forward the request.
+url at which my cards microservice is available
+So what is the name that we have given for the cards microservice service. It is the cards
+where all my cards microservice containers are going to be available at the Port 9000.
+And here the Feign client is not going to perform any load balancing. It is simply going to forward the request to this URL inside the Kubernetes cluster.
+it is not going to work because outside of your Kubernetes cluster there is no hostname or dns name with the name cards.
+I'll go to the cards and here also first I'll open the pom.xml In the place of Eureka,
+we are going to add a new dependency with the name Spring Cloud starter Kubernetes Discovery client.
+CardsApplication we need to mention an annotation which is @EnableDiscoveryClient
+go to application .yml remove eureka property and add kubernative property
+Inside the config server, we are nowhere connecting with the Eureka server. So there is no need of any changes
+same for message,
+in gateway server,@EnableDiscoveryClient. and build.gradle discoveryclient ,
+if you try to scroll down as of now, you can see the routing configurations that we have done here is going to have a uri configuration
+lb://ACCOUNTS and lb://LOANS
+So with this we are telling to the Gateway server, please leverage the spring cloud load balancer and do the load balancing at the Gateway server itself.
+But we don't want that to happen because we are no more using the Eureka.
+ we need to update these uri details with the actual URL details of your individual microservice.
+ .uri("http://accounts:8080"))
+ disable     gateway:
+               discovery:
+                 locator:
+                   enabled: false
+                   lowerCaseServiceId: true
+property value as spring.cloud.kubernetes. discovery.enabled as true and at the same time discovery.allnamespace as true.
+property is spring.cloud.discovery.client.health indicator enabled as false. So by default there is an health indicator bean is going to be created internally.
+
+so finally from bank service we need to do this after building all the application loans, cards, account, config server, gateway server, message
+So without mentioning that discovery server URL, how my gateway server accounts, loans and cards will know.
+go to bank-common folder > templates> configmap.yaml , add SPRING.CLOUD.KUBERNETES.DISCOVERY.DISCOVERY-SERVER-URL property
+If you go and check the Kubernetes manifest file that we have used to deploy the Discovery server here
+we have name as  spring-cloud-kubernetes-discoveryserver
+
+open helm accoutns-service , values.yaml, replicaCount: 2 ,
+open environment folder >dev-env> Chart.yaml .,comment eureka dependency
+delete chart.lock file from all services
+cd kubernete
+kubectl apply -f kubernetes-discoveryserver.yml
+cd  accounts-service
+docker build . -t suyashs52/accounts-service:v1
+cd ../cards-service
+docker build . -t suyashs52/card-service:v1
+cd ../loan-service
+docker build . -t suyashs52/loan-service:v1
+cd ../config-server
+docker build . -t suyashs52/configserver:v1
+cd ../eureka-server
+docker build . -t suyashs52/eureka-server:v1
+cd ../gateway-server
+docker build . -t suyashs52/gateway-server:v1
+cd ..
+cd message
+gradle jib
+cd ..
+ docker image push docker.io/suyashs52/accounts-service:v1
+ docker image push docker.io/suyashs52/card-service:v1
+ docker image push docker.io/suyashs52/loan-service:v1
+ docker image push docker.io/suyashs52/configserver:v2
+ docker image push docker.io/suyashs52/eureka-server:v1
+ docker image push docker.io/suyashs52/gateway-server:v1
+cd helms
+cd keycloak
+helm dependencies build
+cd ..
+cd kube-prometheus
+helm dependencies build
+cd ..
+cd rabbitmq
+helm dependencies build
+cd ..
+cd grafana-tempo
+helm dependencies build
+cd ..
+cd grafana-loki
+helm dependencies build
+cd ..
+cd grafana
+helm dependencies build
+cd ..
+helm install rabbit rabbitmq
+helm install keycloak keycloak
+helm install prometheus grafana-prometheus
+helm install loki grafana-loki
+helm install tempo grafana-tempo
+helm install grafana grafana
+cd ..
+cd helms
+cd bank-common/
+helm dependencies build
+cd ../bank-services
+cd accounts
+helm dependencies build
+cd ../cards
+helm dependencies build
+cd ../configserver
+helm dependencies build
+cd ../eurekaserver
+helm dependencies build
+cd ../message
+helm dependencies build
+cd ../loans
+helm dependencies build
+cd ../gatewayserver
+helm dependencies build
+cd ../../environments/dev-env
+helm dependencies build
+cd ../../..
+cd helms/environments
+helm install bank dev-env
+cd ../..
+
+
+---------------to check template validation do this
+cd helms/environments/dev-env
+helm template .
+cd ../../..
+--------------to check the kubernative pods on ui run on new terminal
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+https://localhost:8443/#/login
 
 
 
 
+
+after finish
+cd helms/environments
+helm uninstall bank
+cd ../..
+
+
+Please note that I hope you remember that we created two replicas of accounts microservice and both
+of them is going to have their own in-memory H2 database.
+so use localhost:8072/bank/accounts/api/create and create 1 account , and use fetch, sometime use get error
+my Kubernetes, which is responsible to the load balancing, is going to forward for one of the accounts
+instance where the account is not available inside the internal H2 database and that will confirm the load balancing is also working fin
+
+So if you are not getting these not found error, there is a good chance that your Kubernetes cluster
+is maintaining the sticky session. So what is sticky session?
+So whenever a request is coming from the same client using the same IP address from the same server
+or from the same system, it is always going to forward the request to the same pod,
+if I keep sending the send button, I'll keep getting the not found always because my Kubernetes
+ is trying to remember the details of the client who is invoking this API.
+
+ Post that you can try to invoke the API by using the browser in an incognito mode.
+
+uninstall everything
+helm uninstall bank
+helm uninstall grafana
+helm uninstall tempo
+helm uninstall loki
+helm uninstall prometheus
+helm uninstall rabbit
+helm uninstall keycloak
+kubectl delete -f kubernetes-discoveryserver.yml
+kubctl get pods
+kubectl delete pod  spring-cloud-kubernetes-discoveryserver-deployment-69dcdd695sgk
+kubectl delete service spring-cloud-kubernetes-discoveryserver

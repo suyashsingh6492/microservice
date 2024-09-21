@@ -1,17 +1,119 @@
-Kubernetes is so modular and flexible and extensible that it can be deployed on on premises or in a
-third party data center or in any of the cloud providers.
-you can create an Kubernetes cluster across multiple cloud providers as well.
-usually creating and maintaining a Kubernetes cluster can be very challenging, especially in on premises.
- many enterprise organizations, they look for the cloud providers, which will make their job easier to maintain their microservices architecture using Kubernetes cluster.
- inside GCP, we call the Kubernetes product as GKE, which means Google Kubernetes engine.
- Similarly inside the AWS, we call it as EKS
-  inside the GCP only with the help of free credits or free tier, we can create a Kubernetes
- cluster. Whereas with AWS and Azure, we need to pay some money to create the Kubernetes cluster, even though we are a new user.
- cloud.google.com. very first time, it is going to offer you $300 free credit that you can use within 90 days.
-  you need to follow to install the Google Cloud cli.
-  So please click on the Kubernetes engine option since you are trying to access this Kubernetes engine very first time inside your account,
-  Auto pilot cluster is a flavor of Kubernetes cluster provided by the Google Cloud to make our life easy.
-  So based upon our traffic, the cluster capacity will be automatically adjusted by the Google Cloud.
+kubernative service type: External Name : Whenever you want to map your service to one of the DNS name or domain name that your organization owns,
+Using Ingress also, we can expose all our microservices to the outside of the cluster,
+ so there has to be a difference between service type load balancer and ingress. So they are doing the same job, which is exposing the microservices to the outside of the Kubernetes cluster.
+ if you use service type as LoadBalancer for five different microservices, then all of them they are going to have five different public IPS with their own LoadBalancer provided by your cloud provider.
+ sometimes we may want to have a single entry point into our Kubernetes cluster, which is going to take care of forwarding all the external requests to the to one of the container or microservice available within the cluster.
+ We already built such component with the help of Spring Cloud Gateway. this is more of a developer approach. The developer has to do a lot of configurations.
+ But some organizations, instead of building their own edge server with the help of Spring Cloud Gateway, they are going to rely on the Kubernetes ingress.
+ So Ingress exposes all the Http and Http routes that are coming from the outside world to the services within the cluster.
+ In other words, it is going to act as an edge server inside your microservices and it is going to be responsible for the traffic routing controlled by the rules defined on the ingress resource.
+ The developer want to write some business logic which cannot be achieved by the Kubernetes ingress. So in such scenarios, obviously the option is to go with the spring Cloud Gateway
+ we have a component called IngressController. So by default, ingress resource can't do anything based upon our configurations.
+ We need to have an IngressController installed on configure inside your Kubernetes cluster to make ingress resources functional.
+ Few such famous IngressControllers are nginx, ingress traffic and proxy ingress.
+ So the job of these controllers is they should watch for the ingress resources and configure the underlying network components accordingly inside the Kubernetes cluster.
+
+ first we are going to have a Kubernetes cluster inside that, we are going to have Kubernetes pods.
+ Inside the pods, we are going to deploy the containers like accounts, loans and cards. So all these services are exposed with the help of ClusterIP service.
+ So anyone who wants to access these services, either internally or from external traffic, they need to reach out to the service objects which are forward the request to the corresponding container.
+
+ So with the help of a IngressController, you can see the Kubernetes developers. They can define many routing rules inside the using ingress resource configuration.
+ And if someone is trying to access this domain with the Path accounts, it is going to be redirected to one of the back end service inside the Kubernetes cluster available at the account service.
+
+ Because there is also a possibility that your organization may set up multiple instances of ingress controller.
+ In such scenarios, there will be a load balancer which is managed by the ingress and the responsibility of that ingress manage load balancer is to redirect the traffic to the one of the ingress controller instance.
+ The very first advantage of ingress is it is going to act as a single entry point into your Kubernetes
+  Kubernetes Ingress is also capable of TLS/SSL termination. at the ingress layer or at the edge server, they are going to convert that Https protocol to the Http.
+  help you to implement path based routing and at the same time host based routing. host based routing. That means they are going to have subdomains like app1.example.com or app2.example.com.
+  And these jargons are around the types of traffic handled by the ingress controller. Ingress traffic, Egress traffic and a North-South traffic.
+   ingress traffic? Any traffic that is entering a Kubernetes cluster, we call it, as a ingress traffic.
+   Egress traffic? which is exiting a Kubernetes cluster, we call it, as a Egress traffic.
+   this ingress and egress traffic, we call it as a North-South traffic traffic entering and exiting a Kubernetes cluster.
+A service mesh is a dedicated infrastructure layer for managing all the communication between your microservices
+Apart from securing the east-west traffic service mesh is also capable of monitoring all your traffic, observe them and provide the metrics.
+service discovery, load balancing, circuit breaking, fault tolerance, metrics and tracing and security.
+If you see all of them, we implemented with various components like for metrics and tracing, we leverage Prometheus, Grafana and similarly for fault tolerance, secure breaking, we leverage resiliency4j.
+Service discovery, we follow client side service discovery with the help of Eureka Server and service side Discovery with the help of Kubernetes Discovery Server. The same kind of capabilities is also going to be provided by the service mesh.
+So if an organization can afford setting up a service mesh, then they will go with that option.
+So all those non business logic is going to present inside a proxy container, inside the same pod. So this proxy container is going to be generated and injected into the same pod by the service mesh
+component.
+sidecar pattern. The sidecar pattern is inspired from the sidecar available inside the bikes. So inside this sidecar, more people can sit like old people or small children
+So with the help of this sidecar, the main bike is trying to get some help and it is trying to get some more functionality.
+And one more advantage with the sidecar container is it is going to be independent from its primary application
+Someone has to have this expertise to set up the service mesh inside the Kubernetes cluster.
+components.: data plane : This data plane is responsible for routing traffic between microservices. with the help of proxies.
+data plane is a component or a layer where the service mesh is going to deploy all the sidecar containers.
+control plane.:  control plane is responsible for configuring, managing and monitoring all the proxies. So whenever a new pod or a new container is trying to get created, my control plane is also going to
+create a sidecar container in that data plane. This control plane also going to have important components like control-plane API, service discovery
+and configuration management. We have many popular service meshes available like Istio, Linkerd, Console, Kong, Aws App Mesh and Azure
+Service Mesh. most of the organizations, they prefer to use Istio or Linkerd as of today.
+ Istio control plane component is going to create the sidecar patterns in all the parts where you have deployed your main container.
+
+ Like if someone is trying to access my accounts, microservice container, the traffic will never go to the actual part.
+ The traffic first will go to the sidecar container or envoy proxy post that once envoy proxy executed
+ all the logic around security monitoring metrics collection, it is going to forward the request to the actual container.
+ The layer where all these envoy proxies are, the sidecar containers are deployed or available. We call that layer or component as Istio data plane.
+ I highlighted that service mesh can secure internal service to service communication in a cluster with a concept called Mutual TLS (mTLS).
+
+ mTLS Mutual LTS Transport Layer Security. this TLS, which succeeded deprecated security socket layer is right now being used in Https communication.
+ So whenever a client like a browser want to communicate with a backend server, they need to communicate with each other in a secured environment or using a encrypted format.
+ Because in the TLS scenario, the backend server who owns the domain name, they have to prove their identity with the help of the certificate.
+ As long as my browser identifies it's a valid certificate, the communication is going to work, whereas in a microservice environment we're not going to use any browser for communication.
+ mTLS came into picture where both parties are both applications they have to mutually authenticate themselves.
+ Then only the communication between them is going to happen. Most of the scenarios these mTLS is followed in an zero trust environment.
+ I might have deployed all my microservices in my own Kubernetes cluster and no one can access my Kubernetes cluster. Only the communication is going to come through the edge server.
+ We never know  one of the third party library that we may use inside our containers or inside our microservices may
+have a security vulnerability using which that library might be listening all the plane traffic coming towards your microservice container within your Kubernetes cluster.
+be some scenario where one of the microservice container is trying to communicate with other microservice container with which it is not supposed to communicate.
+So SSL, which is a secure socket layer, is deprecated because due to the advancements happened in the web, SSL is no more secure.
+So any certificate that is shared to the browser by the backend server, my browser is going to validate that with the certificate authorities.
+ So whenever we are trying to deploy our backend code inside a web server as an organization, it's my responsibility to get a valid certificate from the certificate authority by proving my domain ownership.
+ So the certificate authority is going to issue a certificate to me the same I need to configure inside the backend web server.
+ So as a next step, whenever my web browser is trying to communicate with the web server, first it will ask the web server to prove its identity.
+ my web server gave a certificate to the browser post that the browser is going to validate the same with the certificate authority.
+ Once the certificate authority confirms that that this is a valid certificate, then only the communication between the web browser and web server is going to happen in an encrypted format.
+
+ In the very first step, the browser and the web server is going to have an TCP handshake. nside this TCP handshake they are going to establish connection between the client and server.
+  my browser is going to send a hello message to the backend server. So with this hello message my browser is trying to ask Prove your identity. As a next step, my web server has to prove its identity.
+  Whenever a organization like amazon, they receive a certificate from the Certificate Authority, the certificate is going to have two types of keys public key and private key.
+   my backend server is going to share the public key to the browser. but only my backend server
+which has a private key corresponding to the public key, can only decrypt the data. Since here the browser is using public key and the backend server is going to use private key for the encryption and decryption,
+with the help of public key it has received, it is going to generate a session key, and this session key is going to encrypt with the help of Public Key.
+It has received the same encrypted session key is going to be sent to the web server.
+if someone in the network is trying to steal my encrypted session key, it is not going to make any sense for them because they don't have private key.
+Now think like my backend web server receives the encrypted session key. So as a next step it is going
+to decrypt the encrypted session key into the actual plaintext value, which is session key with the help of private key. Post that once this decryption is completed on the web server side, it is going to acknowledge the same to the browser.
+So now both my browser and web server, they have a session key which they are going to use as a secret to encryption and decryption.
+the browser is going to send a data to the backend server and the backend server also can send the response to the browser.
+Instead it is going to encrypt that with the help of session key, which is only known to the browser and the web server.
+Even if someone in between steal that encrypted data, they cannot decrypt it because they don't have the original secret at the session key that my browser is used to encrypt the data.
+You can see here in the step six, they both are going to use a same value, which is session key for the encryption and decryption.
+but never ever my backend server is going to ask the browser to prove its identity because there can be millions or billions of browsers in millions of computers used by millions of customers.
+But this approach may not work if two applications are going to interact with each other. That's why we are going to use mTLS approach
+But with mTLS both parties are the both applications has to prove their identity.
+inside the mTLS approach, we cannot really ask the third party every time to issue a certificate.
+One is your microservice pods or containers,
+
+you can kill them and recreate them whenever you want. So whenever you are trying to create a new microservice or a new container, you cannot really go to the car and ask for a new certificate
+Instead, the organization itself is going to act as a certificate authority because mTLS anyway is going to be implemented within the organization
+m referring to the service mesh component like Istio.
+
+Like you can see here, whenever we are using service mesh along with the actual container, there will be a sidecar container deployed inside the pod.
+So when my accounts microservice want to communicate with the loans microservice, it simply forwards the request to the loans microservice. But my sidecar proxy is going to intercept that traffic.
+ by accepting that http request first my sidecar proxy of accounts microservice is going to send a hello message to the sidecar proxy of loans microservice.
+ he two sidecar proxies in the two parts who are trying to communicate with each other, they are going to perform a TLS handshake.
+ my sidecar proxy of loans microservice is going to respond with a certificate details. Once this certificate
+ is received by the accounts microservice sidecar proxy, it is going to validate the same with the certificate authority.
+ It is the service mesh control plane because while creating the sidecar proxy containers, it will create a certificate and assign the same to the respective microservice.
+
+
+
+
+
+
+
+
+
 
 
 

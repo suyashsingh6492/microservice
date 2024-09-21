@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
@@ -40,6 +41,7 @@ import java.time.temporal.TemporalAdjusters;
         )
 @EnableConfigurationProperties(value = {AccountsContactInfoDto.class})
 @EnableFeignClients
+@EnableDiscoveryClient
 public class AccountsApplication {
     //http://localhost:8085/swagger-ui/index.html
     public static void main(String[] args) {
