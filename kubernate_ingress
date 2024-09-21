@@ -1,0 +1,17 @@
+Kubernetes is so modular and flexible and extensible that it can be deployed on on premises or in a
+third party data center or in any of the cloud providers.
+you can create an Kubernetes cluster across multiple cloud providers as well.
+usually creating and maintaining a Kubernetes cluster can be very challenging, especially in on premises.
+ many enterprise organizations, they look for the cloud providers, which will make their job easier to maintain their microservices architecture using Kubernetes cluster.
+ inside GCP, we call the Kubernetes product as GKE, which means Google Kubernetes engine.
+ Similarly inside the AWS, we call it as EKS
+  inside the GCP only with the help of free credits or free tier, we can create a Kubernetes
+ cluster. Whereas with AWS and Azure, we need to pay some money to create the Kubernetes cluster, even though we are a new user.
+ cloud.google.com. very first time, it is going to offer you $300 free credit that you can use within 90 days.
+  you need to follow to install the Google Cloud cli.
+  So please click on the Kubernetes engine option since you are trying to access this Kubernetes engine very first time inside your account,
+  Auto pilot cluster is a flavor of Kubernetes cluster provided by the Google Cloud to make our life easy.
+  So based upon our traffic, the cluster capacity will be automatically adjusted by the Google Cloud.
+
+
+
