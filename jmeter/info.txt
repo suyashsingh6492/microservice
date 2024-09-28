@@ -1,0 +1,123 @@
+download jmeter , from bin foler run java -jar ApacheJMeter.jar,
+test plan consists of all actions and components you need to execute your performance test script.
+So that project details should go under this test plan. So threads is basically to put load onto your Jmeter test.
+ Listeners are nothing but test results like how your test is performing
+ Jmeter guides have provided an excellent feature that you can record and automatically Jmeter will generate a test based upon your actions.
+ so that Jmeter will listen to all your actions,
+ what all you are performing on the browser, and based upon your actions, Jmeter itself will generate a test for us
+ change the port no where you want to record 8085
+ on chrome install blazemeter plugin , login to blaze meter
+ jmeter only except .jmx extension . , so start recording in blazemeter , hit the url, do action,
+ stop the recording , save it as jmx,
+ now go back to jmeter > file > open> open jmter file
+ you can see the details in ThreadGroup> Test >
+ JMeter is basically used to put load on the user flow.
+ Now this user flow Either we will write our own script from scratch using JMeter by creating all this HTTP request, okay?
+ Or you will just record and generate the script.
+ So thread group is a set of threads executing the same scenario. JMeter we are using to put load on application with N number of users, r
+ change the number of Threads (user)
+ ramp up period. So that means in how many seconds you want all the users to be on that website, okay
+ if thread is 50 , ramp up is 5 , so per secs 10 user will be on server, on 5th all 50 user will be on server
+  loop count.: But, if you want to repeat this flow for five times, then you can say loop count counts five.
+  if forever check , define scheduler of 60 sec, that means these 50 users
+may complete all these operations in 10 seconds, okay?
+First loop is done. So here we set forever. So they'll simply start second loop Once that is done, they'll start third loop.
+
+If the user failed, what should thread group do? that is Action : continue
+or should I stop only that particular user to not execute further?
+What is listener? it listens to your execution. it collects all the load parameter results, graphs,
+One is view results tree.:
+ aggregate report.aggregate report will give you the details and all the performance parameters output.
+ graph result:
+ When you run this test, all the reports will be generated in this tab so that you can just monitor them.
+
+ first check View REsult tree if none are failing
+ check Aggregate report : Basically, samples are nothing but number of users hit this service.
+ Average means, it is the average time taken (in milis) by all the samples to execute specific label by all the samples
+ sum of all times taken by sample/no of sample
+ Minimum.: So, this is minimum time taken by a user to get a response.
+ Maximum means, one of the sample took maximum time of
+ Percentage of failed requests per label zero. So, that means, what is the failed percentage when 2125 users are hitting that reserve
+ Throughput is very, very important: throughput is number of requests that are processed per time unit by the server.
+ (secs, mins, hours)
+  when 2136 request are hitting that reserve server in a second server is able to handle 72.3 request per second.
+  larger throughput is better
+ 90% of the samples took no more than this time. So 3,000 users out of 3,699 did not take more than 176 milliseconds to execute this.
+
+ median : t's the time in the middle of set of sample result.
+
+ graph results.:
+ What is deviation here: exceptional cases which were deviating from the average value of sample response time.
+ So average value of your sample response is 151 right,
+ Almost most of the users may lie on the same line,
+ but if you see greater deviation like graph going up, so that means we are going up from the average response time limits.
+ When deviation is straight that means we can assume that our tests are not deviating, from average sample response time
+
+ ex: But if you suddenly take some right turn
+  and if you're going somewhere in the trees out of your road, what do you say? "Hey, he's deviating."
+  he has to choose is not correct. He is somewhere going right side and going inside the forest.
+   throughput is nothing but number of requests serving per second, right?
+  So when users are increasing, number of requests serving also increasing.
+  So throughput should not decrease .uou see graph falling like this from top to bottom, so that means server is not able to handle the load
+
+  this deviation should always be less than under average. It should not exceed the average.
+  https://jmeter-plugins.org/wiki/PluginsManager/ to install plugin
+  Download the Plugins Manager JAR file and put it into JMeter's lib>ext directory. Then start JMeter and go to "Options" menu to access the Plugins Manager.
+  restart the jmeter
+  you have to download one plugin called, Custom Thread Groups. ,go to options> plugin manager>available plugin>
+  apply changes and run jmeter >
+  on top side> click add > concurrency thread group
+  now add Target Concurreny: 50 users, amp up time. So in how many seconds or minutes? Let's select time unit as seconds.
+  bottom side select Time Unit : sec, So after, by 30 seconds all will be on the server.
+  So in that 30 seconds, three times it should ramp.  that is step cont,
+  So that means 50 users have been on server in 30 seconds. for 10 sec 16 users, for next 20 sec 32 , at 21 sec all 50 users
+  let's say there is a Black Friday deal going on at 12 o'clock, okay? So you cannot expect all the users at 12 o'clock, right?
+  When deal starts at 12, people may join at 12:10, 12:20, 12:30, okay? So maybe by 12:30 there will be lot of hits on the server.
+  And hold target rate, that means how many seconds you have to hold this on the server.
+  until 180 seconds, this graph would be straight with the 50 users on the server.
+  now put all the Accounts sub file inside this only
+  Okay, and you can disable this existing thread group by clicking on disable, and save now run
+  now right client> add > threads > ultimate thread group > you have to add the row.
+  Start thread count, how many, with how many count you have to run this load.
+    initial delay? I want to delay for five seconds. no user is started for five seconds,
+   how quick this 50 is reaching depends upon this parameter, start up time.
+   to hold this load for 60 seconds, okay? \ to hold this load for 60 seconds, okay?
+   it's a ramp downtime. We are not quickly closing.
+   If you quickly close everything it should be straight. But we are saying that take 10 seconds to close all the, see, 50 users.
+
+https://the-internet.herokuapp.com/login
+to assert > in api> right click > assertion > Response Assertion, Size Assertion , Duration Assertion
+in Response Assertino> Text Response , add content > add button > , similarly add response code ,
+Listener > add > listener > assertion listener >
+when you run the test , in view result tree> sample result > you will see no of byte get in response
+so go to size assertion
+
+to join multiple functionality > use controller > transaction controller, loop controller , module controller, runtime controller
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

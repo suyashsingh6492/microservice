@@ -10,7 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
-import org.apache.http.HttpStatus;
+
+import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
-public class    CustomerController {
+public class CustomerController {
     private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
 
     final ICustomersService iCustomersService;

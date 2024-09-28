@@ -41,32 +41,32 @@ spring:
         enabled: true
     function:
       definition: updateCommunication
-    stream:
-      bindings:
-        updateCommunication-in-0:
-          destination: communication-sent
-          group: ${spring.application.name}
-        sendCommunication-out-0:
-          destination: send-communication
+#    stream:
+#      bindings:
+#        updateCommunication-in-0:
+#          destination: communication-sent
+#          group: ${spring.application.name}
+#        sendCommunication-out-0:
+#          destination: send-communication
 #      kafka:
 #        binder:
 #          brokers:
 #            - localhost:9092
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    connection-timeout: 10s
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
+#    connection-timeout: 10s
 
 build:
   version: "1.0"
 
 accounts:
-  message: "Welcome to EazyBank accounts related local APIs "
+  message: "Welcome to Bank accounts related local APIs "
   contactDetails:
     name: "John Doe - Developer"
-    email: "john@eazybank.com"
+    email: "john@gmail.com"
   onCallSupport:
     - (555) 555-1234
     - (555) 523-1345
